@@ -1,0 +1,33 @@
+{
+    "name": "arif-rh/ci4-dynamic-model",
+    "description": "Dynamic Model Package for CodeIginiter 4.",
+    "homepage": "https://github.com/arif-rh/ci4-dynamic-model",
+    "keywords": ["model", "ci4 model", "codeigniter model", "codeigniter4 model"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Arif Rahman Hakim",
+            "email": "arifrahmanhakim.net@gmail.com"
+        }
+    ],
+    "require": {
+		"php": ">=7.2"
+    },
+    "require-dev": {
+		"phpunit/phpunit": "8.5.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Arifrh\\DynaModel\\": "src"
+        }
+    },
+	"autoload-dev": {
+		"psr-4": {
+			"Arifrh\\DynaModelTests\\": "tests"
+		}
+	},
+	"scripts": {
+        "test": "phpunit",
+        "testdox": "phpunit --testdox"
+	}
+}
