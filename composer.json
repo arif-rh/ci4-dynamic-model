@@ -1,8 +1,8 @@
 {
     "name": "arif-rh/ci4-dynamic-model",
-    "description": "Dynamic Model Package for CodeIginiter 4.",
+    "description": "Creating CodeIgniter 4 Model on-the-fly with Relationship Built-in Feature.",
     "homepage": "https://github.com/arif-rh/ci4-dynamic-model",
-    "keywords": ["model", "ci4 model", "codeigniter model", "codeigniter4 model"],
+    "keywords": ["model", "ci4 model", "codeigniter model", "codeigniter4 model", "codeigniter4 relationship", "ci4 relationship model"],
     "license": "MIT",
     "authors": [
         {
