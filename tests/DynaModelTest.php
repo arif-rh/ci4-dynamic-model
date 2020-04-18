@@ -32,6 +32,28 @@ class DynaModelTest extends TestCase
 		$this->assertSame($primaryKey, $authors->getPrimaryKey());
 	}
 
+	public function testLast()
+	{
+		$table = 'authors';
+
+		$authors = Arifrh\DynaModel\DB::table($table);
+		$author = $authors->asObject()->last();
+
+		$this->assertSame('Tante Ais', $author->name);
+
+		// last after deleted
+		$authors->useSoftDelete()->delete(4);
+
+		$author = $authors->asObject()->last();
+
+		$this->assertSame('Simbah Mas', $author->name);
+
+		// get last with deleted
+		$author = $authors->asObject()->withDeleted()->last();
+
+		$this->assertSame('Tante Ais', $author->name);
+	}
+
 	public function testSoftDelete()
 	{
 		$table = 'authors';
@@ -183,5 +205,23 @@ class DynaModelTest extends TestCase
 									->findAll();
 
 		$this->assertSame(4, count($publish_articles));
+
+		// filter for empty result
+		$draftArticles = $authors->with($alias)
+								  ->whereRelation($alias, ['status' => 'draft'])
+								  ->find(2);
+
+		$article_status = dot_array_search('*.article', [$draftArticles]);
+
+		$this->assertEmpty($article_status);
+
+
+		$draftArticles = $authors->with($alias)
+								  ->whereRelation($alias, ['status' => 'publish'])
+								  ->find(2);
+
+		$article_status = dot_array_search('*.article', [$draftArticles]);
+
+		$this->assertSame(1, count($article_status));
 	}
 }
