@@ -1,0 +1,46 @@
+language: php
+
+php:
+  - 7.2
+  - 7.3
+  - 7.4
+  - nightly
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - php: nightly
+
+dist: xenial
+group: edge
+
+global:
+  - CI=true
+  - CI_ENVIRONMENT=testing
+
+env:
+  - DB=mysqli
+  - DB=sqlite
+
+services:
+  - memcached
+  - mysql
+
+cache:
+  directories:
+    - vendor
+
+script:
+  - php vendor/bin/phpunit -v
+#  - sonar-scanner
+
+before_install:
+  - mysql -e "CREATE DATABASE IF NOT EXISTS test;" -uroot;
+  - mysql -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'test';" -uroot
+  
+before_script:
+  - echo 'extension = memcached.so' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - composer install --prefer-source
+
+after_success:
+  - travis_retry php vendor/bin/php-coveralls -v
