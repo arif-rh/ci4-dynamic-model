@@ -2,30 +2,87 @@
 
 declare(strict_types=1);
 
-use PHPUnit\Framework\TestCase;
+use Arifrh\DynaModel\DB;
+use Arifrh\DynaModelTests\DynaModelTestCase as TestCase;
 
-/**
-*  Unit Test for StarterTest Class
-*
-*  @author Arif RH
-*/
-final class DynaModelTest extends TestCase
+class DynaModelTest extends TestCase
 {
-  /**
-   * set common properties that will be used in all unit test case
-   */
-	  protected $mock = null;
+	public function testInitFromClass()
+	{
+		$authors = new Arifrh\DynaModelTests\Models\AuthorModel();
+		$this->assertInstanceOf(\CodeIgniter\Model::class, $authors);
+	}
 
-    /**
-     * Setup inital action that will be used in all unit test case
-     */
-    public function setUp(): void
-    {
-        $this->mock = [];  // TO DO
-    }
+	public function testInitDynamically()
+	{
+		$authors = Arifrh\DynaModel\DB::table('authors');
+		$this->assertInstanceOf(\CodeIgniter\Model::class, $authors);
+	}
 
-    public function tearDown(): void
-    {
-        $this->mock = null;
-    }
+	public function testFindAll()
+	{
+		$authors = Arifrh\DynaModel\DB::table('authors');
+		$authors->findAll();
+
+		$this->assertSame(4, $authors->countAllResults());
+	}
+
+	public function testFind()
+	{
+		$authors = Arifrh\DynaModel\DB::table('authors');
+		$authors->find();
+
+		$this->assertSame(4, $authors->countAllResults());
+	}
+
+	public function testFindOne()
+	{
+		$authors = Arifrh\DynaModel\DB::table('authors');
+		$authors->find(1, false);
+
+		$this->assertSame(1, $authors->countAllResults());
+	}
+
+	public function testFindTwo()
+	{
+		$authors = Arifrh\DynaModel\DB::table('authors');
+		$authors->find([1,2], false);
+
+		$this->assertSame(2, $authors->countAllResults());
+	}
+
+	public function testBelongsTo()
+	{
+		$posts = Arifrh\DynaModel\DB::table('posts');
+		$posts->belongsTo('authors');
+
+		$postAuthor = $posts->with('authors')
+							->asObject()
+							->find(2, false);
+
+		$this->assertSame('Tante Ais', $postAuthor->name);
+	}
+
+	public function testBelongsToWhereRelation()
+	{
+		$posts = Arifrh\DynaModel\DB::table('posts');
+
+		$allPosts = $posts->findAll();
+
+		$this->assertSame(5, $posts->countAllResults());
+
+		$posts->belongsTo('authors');
+
+		$postAuthor = $posts->with('authors')
+							->whereRelation('authors', ['active' => 1])
+							->findAll(0,0, false);
+
+		$this->assertSame(4, count($postAuthor));
+
+		$postAuthor = $posts->with('authors')
+							->whereRelation('authors', ['active' => 0])
+							->findAll(0,0, false);
+
+		$this->assertSame(1, count($postAuthor));
+	}
 }
