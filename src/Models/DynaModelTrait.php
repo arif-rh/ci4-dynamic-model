@@ -523,7 +523,7 @@ trait DynaModelTrait
 
                 $parentData = $data['data'];
 
-                if (is_numeric($data['id']) || is_string($data['id']))
+                if ($this->isSingleResult($data))
                 {
                     $parentData = [$parentData];
                 }
@@ -556,16 +556,12 @@ trait DynaModelTrait
      */
     protected function attachRelationData($resultData, $childData, $fieldAlias, $relationId, $primaryKey)
     {
-        $singleRow = false;
         $parentData = $resultData['data'];
-
-        if (is_numeric($resultData['id']) || is_string($resultData['id']))
-        {
-            $singleRow = true;
-        }
 
         $relationData = array_group_by($childData, $relationId);
 
+        $singleRow = $this->isSingleResult($resultData);
+        
         if (!$singleRow)
         {
             foreach($parentData as $i => $row)
@@ -623,6 +619,10 @@ trait DynaModelTrait
         return $parentData;
     }
 
+    protected function isSingleResult($resultData = null)
+    {
+        return isset($resultData['id']) && (is_numeric($resultData['id']) || is_string($resultData['id']));
+    }
     /**
      * Filter relationship data
      * 
