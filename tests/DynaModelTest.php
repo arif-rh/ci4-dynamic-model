@@ -15,8 +15,45 @@ class DynaModelTest extends TestCase
 
 	public function testInitDynamically()
 	{
-		$authors = Arifrh\DynaModel\DB::table('authors');
+		$table = 'authors';
+
+		$authors = Arifrh\DynaModel\DB::table($table);
 		$this->assertInstanceOf(\CodeIgniter\Model::class, $authors);
+
+		$this->assertSame($table, $authors->getTableName());
+	}
+
+	public function testSetPrimaryKey()
+	{
+		$primaryKey = 'email';
+
+		$authors = Arifrh\DynaModel\DB::table('authors', $primaryKey);
+
+		$this->assertSame($primaryKey, $authors->getPrimaryKey());
+	}
+
+	public function testSoftDelete()
+	{
+		$table = 'authors';
+
+		$authors = Arifrh\DynaModel\DB::table($table);
+		$authors->useSoftDelete(true, 'deleted_at');
+
+		$authors->delete(1);
+
+		$authors->find();
+
+		$this->assertSame(3, $authors->countAllResults());
+
+		$authors->withDeleted()->find();
+
+		$this->assertSame(4, $authors->withDeleted()->countAllResults());
+
+		$authors->onlyDeleted()->find();
+
+		$this->assertSame(1, $authors->onlyDeleted()->countAllResults());
+
+		
 	}
 
 	public function testFindAll()
@@ -30,22 +67,18 @@ class DynaModelTest extends TestCase
 	public function testFind()
 	{
 		$authors = Arifrh\DynaModel\DB::table('authors');
+
+		// an alias to findAll
 		$authors->find();
 
 		$this->assertSame(4, $authors->countAllResults());
-	}
-
-	public function testFindOne()
-	{
-		$authors = Arifrh\DynaModel\DB::table('authors');
+	
+		// find one key
 		$authors->find(1, false);
 
 		$this->assertSame(1, $authors->countAllResults());
-	}
-
-	public function testFindTwo()
-	{
-		$authors = Arifrh\DynaModel\DB::table('authors');
+	
+		// find using array
 		$authors->find([1,2], false);
 
 		$this->assertSame(2, $authors->countAllResults());
@@ -61,39 +94,42 @@ class DynaModelTest extends TestCase
 							->find(2);
 
 		$this->assertSame('Tante Ais', $postAuthor->name);
-		
-		// give alias name for name field
-		$postAuthor = $posts->with('authors', ['name as author_name'])
-							->asObject()
-							->find(2);
-
-		$this->assertSame('Tante Ais', $postAuthor->author_name);
 	}
 
-	public function testBelongsToWhereRelation()
+	public function testBelongsToCustom()
 	{
 		$posts = Arifrh\DynaModel\DB::table('posts');
 
 		$allPosts = $posts->findAll();
 		$this->assertSame(5, $posts->countAllResults());
 
-		$posts->belongsTo('authors');
+		$parentTable = 'authors';
 
-		$postAuthor = $posts->with('authors')
-							->whereRelation('authors', ['active' => 1])
+		$posts->belongsTo($parentTable);
+
+		// give alias name for name field
+		$postAuthor = $posts->with($parentTable, ['name as author_name'])
+							->asObject()
+							->find(2);
+
+		$this->assertSame('Tante Ais', $postAuthor->author_name);
+
+		// filter only active author
+		$postAuthor = $posts->with($parentTable)
+							->whereRelation($parentTable, ['active' => 1])
 							->findAll();
 
 		$this->assertSame(4, count($postAuthor));
 
-		$postAuthor = $posts->with('authors')
-							->whereRelation('authors', ['active' => 0])
+		$postAuthor = $posts->with($parentTable)
+							->whereRelation($parentTable, ['active' => 0])
 							->findAll();
 
 		$this->assertSame(1, count($postAuthor));
 
 		// filter based on array conditions
-		$postAuthor = $posts->with('authors')
-							->whereRelation('authors', ['email' => ['pakdhe@world.com','budhe@world.com']])
+		$postAuthor = $posts->with($parentTable)
+							->whereRelation($parentTable, ['email' => ['pakdhe@world.com','budhe@world.com']])
 							->findAll();
 
 		$this->assertSame(3, count($postAuthor));
@@ -107,5 +143,45 @@ class DynaModelTest extends TestCase
 		$authorPosts = $authors->with('posts')->find(1);
 
 		$this->assertSame(2, count($authorPosts['posts']));
+
+		$authorPosts = $authors->with('posts')
+								->asObject()
+								->find(1);
+
+		$this->assertSame(2, count($authorPosts->posts));
+	}
+
+	public function testHasManyCustom()
+	{
+		$authors = Arifrh\DynaModel\DB::table('authors');
+
+		// set relation with alias and ordering
+		$alias = 'article';
+		$authors->hasMany('posts', 'author_id', $alias, ['status' => 'asc']);
+
+		$authorArticles = $authors->with($alias)
+								  ->find([1,3]);
+
+		$article_status = dot_array_search('*.article.*.status', $authorArticles);
+		
+		$this->assertSame('draft', $article_status);
+
+		// set relation with alias and ordering
+		$authors->hasMany('posts', 'author_id', $alias, ['status' => 'desc']);
+
+		$authorArticles = $authors->with($alias)
+								   ->find([1,3]);
+
+		$article_status = dot_array_search('*.article.*.status', $authorArticles);
+		
+		$this->assertSame('publish', $article_status);
+
+		// filtered based on publish status
+		$publish_articles = $authors->with($alias)
+									->whereRelation($alias, ['status' => 'publish'])
+									->asObject()
+									->findAll();
+
+		$this->assertSame(4, count($publish_articles));
 	}
 }
