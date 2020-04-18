@@ -296,6 +296,36 @@ trait DynaModelTrait
     }
 
     /**
+     * Get Last row from the table
+     */
+    public function last()
+    {
+		$builder = $this->builder();
+
+		if ($this->tempUseSoftDeletes === true)
+		{
+			$builder->where($this->table . '.' . $this->deletedField, null);
+		}
+
+		// Some databases, like PostgreSQL, need order
+		// information to consistently return correct results.
+		if (empty($builder->QBOrderBy) && ! empty($this->primaryKey))
+		{
+			$builder->orderBy($this->table . '.' . $this->primaryKey, 'asc');
+		}
+
+		$row = $builder->limit()->get();
+
+		$row = $row->getLastRow($this->tempReturnType);
+
+		$eventData = $this->trigger('afterFind', ['data' => $row]);
+
+		$this->tempReturnType = $this->returnType;
+
+		return $eventData['data'];
+    }
+
+    /**
      * ---------------------------------
      * Begining of Relationship Methods
      * ---------------------------------
