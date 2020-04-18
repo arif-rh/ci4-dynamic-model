@@ -513,8 +513,6 @@ trait DynaModelTrait
             return $data;
         }
 
-        $finalData = $data['data'];
-
         foreach ($this->hasMany as $alias => $relationInfo)
         {
             if (array_key_exists($alias, $this->relationships))
@@ -523,7 +521,14 @@ trait DynaModelTrait
                 
                 $related->setOrderBy($relationInfo['orderBy']);
 
-                $keys = $this->getColumns($finalData, $relationInfo['primaryKey']);
+                $parentData = $data['data'];
+
+                if (is_numeric($data['id']) || is_string($data['id']))
+                {
+                    $parentData = [$parentData];
+                }
+
+                $keys = $this->getColumns($parentData, $relationInfo['primaryKey']);
 
                 $related->whereIn($relationInfo['relationId'], $keys);
 
@@ -531,13 +536,11 @@ trait DynaModelTrait
 
                 $relationData = $related->findAll();
 
-                $finalData = $this->attachRelationData($finalData, $relationData, $alias, $relationInfo['relationId'], $relationInfo['primaryKey']);
+                $data['data'] = $this->attachRelationData($data, $relationData, $alias, $relationInfo['relationId'], $relationInfo['primaryKey']);
             }
         }
 
         $this->resetRelationship();
-        
-        $data['data'] = $finalData;
 
         return $data;
     }
@@ -545,38 +548,74 @@ trait DynaModelTrait
     /**
      * Attach Relationship Data to Parent
      * 
-     * @param array  $parentData result array of parent table
+     * @param array  $resultData result array of parent table
      * @param array  $childData  result of related table
      * @param string $fieldAlias relationship alias
      * @param string $relationId foreign key in parent table
      * @param string $primaryKey primary key of related table, which related to foreign key
      */
-    protected function attachRelationData($parentData, $childData, $fieldAlias, $relationId, $primaryKey)
+    protected function attachRelationData($resultData, $childData, $fieldAlias, $relationId, $primaryKey)
     {
+        $singleRow = false;
+        $parentData = $resultData['data'];
+
+        if (is_numeric($resultData['id']) || is_string($resultData['id']))
+        {
+            $singleRow = true;
+        }
+
         $relationData = array_group_by($childData, $relationId);
 
-        foreach($parentData as $i => $row)
+        if (!$singleRow)
+        {
+            foreach($parentData as $i => $row)
+            {
+                if ($this->returnIsObject())
+                {
+                    $parentData[$i]->{$fieldAlias} = [];
+
+                    $relationValue = $parentData[$i]->{$primaryKey};
+
+                    if (isset($relationData[$relationValue]))
+                    {
+                        $parentData[$i]->{$fieldAlias} = $relationData[$relationValue];
+                    }
+                }
+                else 
+                {
+                    $parentData[$i][$fieldAlias] = [];
+
+                    $relationValue = $parentData[$i][$primaryKey];
+
+                    if (isset($relationData[$relationValue]))
+                    {
+                        $parentData[$i][$fieldAlias] = $relationData[$relationValue];
+                    }
+                }
+            }
+        }
+        else 
         {
             if ($this->returnIsObject())
             {
-                $parentData[$i]->{$fieldAlias} = [];
+                $parentData->{$fieldAlias} = [];
 
-                $relationValue = $parentData[$i]->{$primaryKey};
+                $relationValue = $parentData->{$primaryKey};
 
                 if (isset($relationData[$relationValue]))
                 {
-                    $parentData[$i]->{$fieldAlias} = $relationData[$relationValue];
+                    $parentData->{$fieldAlias} = $relationData[$relationValue];
                 }
             }
             else 
             {
-                $parentData[$i][$fieldAlias] = [];
+                $parentData[$fieldAlias] = [];
 
-                $relationValue = $parentData[$i][$primaryKey];
+                $relationValue = $parentData[$primaryKey];
 
                 if (isset($relationData[$relationValue]))
                 {
-                    $parentData[$i][$fieldAlias] = $relationData[$relationValue];
+                    $parentData[$fieldAlias] = $relationData[$relationValue];
                 }
             }
         }
