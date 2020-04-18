@@ -183,6 +183,8 @@ trait DynaModelTrait
 
         $fieldInfos = $this->db->getFieldData($table);
 
+        $this->fieldInfo = [];
+
         foreach($fieldInfos as $field)
         {
             $this->fieldInfo[$field->name] = $field;
@@ -470,7 +472,7 @@ trait DynaModelTrait
             {
                 if ($info->primary_key != 1)
                 {
-                    $columns[] =  $alias.".".(array_key_exists($field, $parentFields) ? $field." AS ".$alias."_".$field : $field);
+                    $columns[] =  $alias.".".(array_key_exists($field, $parentFields) ? $field." AS ".singular($alias)."_".$field : $field);
                 }
             }
         }
@@ -486,7 +488,7 @@ trait DynaModelTrait
 
         $this->select($columns);
         
-        $this->join($relationInfo['table']." AS {$alias}", "{$alias}.{$relationInfo['primaryKey']} = {$this->table}.{$relationInfo['relationId']}");
+        $this->join($this->db->prefixTable($relationInfo['table'])." AS {$alias}", "{$alias}.{$relationInfo['primaryKey']} = {$this->table}.{$relationInfo['relationId']}");
     }
 
     /**
@@ -584,20 +586,17 @@ trait DynaModelTrait
         {
             $table    = $type == 'join' ? $alias : $model->getTableName();
 
-            $filter   = $type == 'join' ? 'having' : 'where';
-            $filterIn = $type == 'join' ? 'havingIn' : 'whereIn';
-
             foreach($this->whereRelations[$alias] as $where => $condition)
             {
                 if (is_array($condition))
                 {
-                    $model->{$filterIn}($table.".".$where, $condition);
+                    $model->whereIn($table.".".$where, $condition);
                 }
                 else 
                 {
                     $aliasWhere = [$table.".".$where => $condition]; 
 
-                    $model->{$filter}($aliasWhere);
+                    $model->where($aliasWhere);
                 }
             }
         }
