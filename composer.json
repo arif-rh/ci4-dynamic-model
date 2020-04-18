@@ -15,7 +15,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "8.5.*",
-        "codeigniter4/framework": "4.0.*"
+        "codeigniter4/framework": "4.0.*",
+        "php-coveralls/php-coveralls": "^2.2"
     },
     "autoload": {
         "psr-4": {
