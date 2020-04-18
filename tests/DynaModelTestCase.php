@@ -8,8 +8,6 @@ use PHPUnit\Framework\TestCase;
 
 class DynaModelTestCase extends TestCase
 {
-	protected $loaded = false;
-
 	/**
 	 * Should the db be refreshed before
 	 * each test?
@@ -141,12 +139,6 @@ class DynaModelTestCase extends TestCase
 	protected function setUp(): void
 	{
 		parent::setUp();
-
-		if (! $this->loaded)
-		{
-			Services::autoloader()->addNamespace('Arifrh\DynaModelTests', TESTPATH);
-			$this->loaded = true;
-		}
 
 		$this->loadDependencies();
 
