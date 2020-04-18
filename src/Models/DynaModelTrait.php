@@ -164,7 +164,17 @@ trait DynaModelTrait
 		$this->tempUseSoftDeletes = $this->useSoftDeletes;
 
 		return $eventData['data'];
-	}
+    }
+    
+    /**
+     * an alias to call parent resetSelect
+     */
+    public function resetQuery()
+    {
+        $this->getCompiledSelect(true);
+
+        return $this;
+    }
 
     /**
      * ---------------------------------
@@ -465,7 +475,7 @@ trait DynaModelTrait
         if (empty($this->relationships[$alias]))
         {
             $related = \Arifrh\DynaModel\DB::table($relationInfo['table']);
-            
+
             $fields = $related->getFieldInfo();
 
             foreach($fields as $field => $info)
@@ -486,7 +496,7 @@ trait DynaModelTrait
             }
         }
 
-        $this->select($columns);
+        $this->select($columns, false);
         
         $this->join($this->db->prefixTable($relationInfo['table'])." AS {$alias}", "{$alias}.{$relationInfo['primaryKey']} = {$this->table}.{$relationInfo['relationId']}");
     }
