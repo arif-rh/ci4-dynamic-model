@@ -192,8 +192,21 @@ trait DynaModelTrait
     /**
      * Get All Field Information from current table
      */
-    public function getFieldInfo()
+    public function getFieldInfo($table = null, $primaryKey = false)
     {
+        $this->collectFieldInfo($table);
+
+        if ($primaryKey)
+        {
+            foreach($this->fieldInfo as $field)
+            {
+                if ($field->primary_key)
+                {
+                    return $field->name;
+                }
+            }
+        }
+
         return $this->fieldInfo;
     }
 
@@ -222,8 +235,7 @@ trait DynaModelTrait
      */
     private function fetchPrimaryKey($table = null)
     {
-        $table = $table ?? $this->table;
-        return $this->db->query("SHOW KEYS FROM `".$table."` WHERE Key_name = 'PRIMARY'")->getRow()->Column_name;
+        return $this->getFieldInfo($table, true);
     }
 
     public function getPrimaryKey()
