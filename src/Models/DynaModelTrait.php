@@ -517,26 +517,28 @@ trait DynaModelTrait
         {
             if (array_key_exists($alias, $this->relationships))
             {
-                $related = \Arifrh\DynaModel\DB::table($relationInfo['table']);
-                
-                $related->setOrderBy($relationInfo['orderBy']);
-
                 $parentData = $data['data'];
 
-                if ($this->isSingleResult($data))
+                if (!empty($parentData))
                 {
-                    $parentData = [$parentData];
+                    if ($this->isSingleResult($data))
+                    {
+                        $parentData = [$parentData];
+                    }
+
+                    $keys = $this->getColumns($parentData, $relationInfo['primaryKey']);
+
+                    $related = \Arifrh\DynaModel\DB::table($relationInfo['table']);
+                    
+                    $related->setOrderBy($relationInfo['orderBy']);
+                    $related->whereIn($relationInfo['relationId'], $keys);
+
+                    $this->filterRelationship($alias, $related);
+
+                    $relationData = $related->findAll();
+
+                    $data['data'] = $this->attachRelationData($data, $relationData, $alias, $relationInfo['relationId'], $relationInfo['primaryKey']);
                 }
-
-                $keys = $this->getColumns($parentData, $relationInfo['primaryKey']);
-
-                $related->whereIn($relationInfo['relationId'], $keys);
-
-                $this->filterRelationship($alias, $related);
-
-                $relationData = $related->findAll();
-
-                $data['data'] = $this->attachRelationData($data, $relationData, $alias, $relationInfo['relationId'], $relationInfo['primaryKey']);
             }
         }
 
@@ -561,7 +563,7 @@ trait DynaModelTrait
         $relationData = array_group_by($childData, $relationId);
 
         $singleRow = $this->isSingleResult($resultData);
-        
+
         if (!$singleRow)
         {
             foreach($parentData as $i => $row)
