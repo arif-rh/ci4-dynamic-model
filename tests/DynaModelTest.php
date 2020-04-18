@@ -90,5 +90,22 @@ class DynaModelTest extends TestCase
 							->findAll();
 
 		$this->assertSame(1, count($postAuthor));
+
+		// filter based on array conditions
+		$postAuthor = $posts->with('authors')
+							->whereRelation('authors', ['email' => ['pakdhe@world.com','budhe@world.com']])
+							->findAll();
+
+		$this->assertSame(3, count($postAuthor));
+	}
+
+	public function testHasMany()
+	{
+		$authors = Arifrh\DynaModel\DB::table('authors');
+		$authors->hasMany('posts');
+
+		$authorPosts = $authors->with('posts')->find(1);
+
+		$this->assertSame(2, count($authorPosts['posts']));
 	}
 }
