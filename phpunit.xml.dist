@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="vendor/autoload.php"
-        backupGlobals="false"
-        colors="true"
-        convertErrorsToExceptions="true"
-        convertNoticesToExceptions="true"
-        convertWarningsToExceptions="true"
-        stopOnError="false"
-        stopOnFailure="false"
-        stopOnIncomplete="false"
-        stopOnSkipped="false">
-
+<phpunit bootstrap="vendor/codeigniter4/framework/system/Test/bootstrap.php"
+		backupGlobals="false"
+		colors="true"
+		convertErrorsToExceptions="true"
+		convertNoticesToExceptions="true"
+		convertWarningsToExceptions="true"
+		stopOnError="false"
+		stopOnFailure="false"
+		stopOnIncomplete="false"
+		stopOnSkipped="false">
     <testsuites>
         <testsuite name="dynamodel">
             <directory>./tests</directory>
@@ -26,4 +25,20 @@
         <log type="coverage-clover" target="build/logs/clover.xml"/>
         <log type="coverage-html" target="build/html"/>
     </logging>
+
+    <php>
+		<!-- Directory containing phpunit.xml -->
+		<const name="HOMEPATH" value="./"/>
+
+<!-- Directory containing the Paths config file -->
+		<const name="CONFIGPATH" value="vendor/codeigniter4/framework/app/Config/"/>
+
+        <!-- Directory containing the front controller (index.php) -->
+		<const name="PUBLICPATH" value="./public/"/>
+
+		<!-- Directory containing the Paths of test file -->
+		<const name="TESTPATH" value="./tests/"/>
+
+		<const name="CI_DEBUG" value="1"/>
+	</php>
 </phpunit>
