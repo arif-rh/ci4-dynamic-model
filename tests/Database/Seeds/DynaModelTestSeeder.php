@@ -71,13 +71,13 @@ class DynaModelTestSeeder extends \CodeIgniter\Database\Seeder
 					'name'     => 'Hanan',
 					'content'  => 'Can\'t wait to try it.',
 					'post_id'  => 2,
-					'status'   => 'pending'
+					'status'   => 'approved'
 				],
 				[
 					'name'     => 'Hanif',
 					'content'  => 'Absolutely awesome.',
 					'post_id'  => 1,
-					'status'   => 'approved'
+					'status'   => 'pending'
 				],
 				[
 					'name'     => 'Hanan',
