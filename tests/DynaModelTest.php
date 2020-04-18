@@ -58,9 +58,16 @@ class DynaModelTest extends TestCase
 
 		$postAuthor = $posts->with('authors')
 							->asObject()
-							->find(2, false);
+							->find(2);
 
 		$this->assertSame('Tante Ais', $postAuthor->name);
+		
+		// give alias name for name field
+		$postAuthor = $posts->with('authors', ['name as author_name'])
+							->asObject()
+							->find(2);
+
+		$this->assertSame('Tante Ais', $postAuthor->author_name);
 	}
 
 	public function testBelongsToWhereRelation()
@@ -68,20 +75,19 @@ class DynaModelTest extends TestCase
 		$posts = Arifrh\DynaModel\DB::table('posts');
 
 		$allPosts = $posts->findAll();
-
 		$this->assertSame(5, $posts->countAllResults());
 
 		$posts->belongsTo('authors');
 
 		$postAuthor = $posts->with('authors')
 							->whereRelation('authors', ['active' => 1])
-							->findAll(0,0, false);
+							->findAll();
 
 		$this->assertSame(4, count($postAuthor));
 
 		$postAuthor = $posts->with('authors')
 							->whereRelation('authors', ['active' => 0])
-							->findAll(0,0, false);
+							->findAll();
 
 		$this->assertSame(1, count($postAuthor));
 	}
