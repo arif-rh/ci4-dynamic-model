@@ -1,6 +1,7 @@
 # DynaModel
 Dynamic Model for CodeIgniter 4
 ===============================
+[![Build Status](https://travis-ci.com/arif-rh/ci4-dynamic-model.svg?branch=master)](https://travis-ci.com/arif-rh/ci4-dynamic-model)  [![Coverage Status](https://coveralls.io/repos/github/arif-rh/ci4-dynamic-model/badge.svg)](https://coveralls.io/github/arif-rh/ci4-dynamic-model)
 
 ## Feature
 * Dynamically Creating the Model on-the-fly

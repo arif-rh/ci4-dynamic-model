@@ -17,7 +17,7 @@ class DynaModelTest extends TestCase
 	{
 		$table = 'authors';
 
-		$authors = Arifrh\DynaModel\DB::table($table);
+		$authors = DB::table($table);
 		$this->assertInstanceOf(\CodeIgniter\Model::class, $authors);
 
 		$this->assertSame($table, $authors->getTableName());
@@ -27,16 +27,26 @@ class DynaModelTest extends TestCase
 	{
 		$primaryKey = 'email';
 
-		$authors = Arifrh\DynaModel\DB::table('authors', $primaryKey);
+		$authors = DB::table('authors', $primaryKey);
 
 		$this->assertSame($primaryKey, $authors->getPrimaryKey());
+	}
+
+	public function testResetQuery()
+	{
+		$comments = DB::table('comments');
+
+		$comments->orderBy('id', 'asc');
+		$row = $comments->resetQuery()->orderBy('id', 'desc')->first();
+
+		$this->assertSame(4, $row['id']);
 	}
 
 	public function testLast()
 	{
 		$table = 'authors';
 
-		$authors = Arifrh\DynaModel\DB::table($table);
+		$authors = DB::table($table);
 		$author = $authors->asObject()->last();
 
 		$this->assertSame('Tante Ais', $author->name);
@@ -58,7 +68,7 @@ class DynaModelTest extends TestCase
 	{
 		$table = 'authors';
 
-		$authors = Arifrh\DynaModel\DB::table($table);
+		$authors = DB::table($table);
 		$authors->useSoftDelete(true, 'deleted_at');
 
 		$authors->delete(1);
@@ -80,7 +90,7 @@ class DynaModelTest extends TestCase
 
 	public function testFindAll()
 	{
-		$authors = Arifrh\DynaModel\DB::table('authors');
+		$authors = DB::table('authors');
 		$authors->findAll();
 
 		$this->assertSame(4, $authors->countAllResults());
@@ -88,7 +98,7 @@ class DynaModelTest extends TestCase
 
 	public function testFind()
 	{
-		$authors = Arifrh\DynaModel\DB::table('authors');
+		$authors = DB::table('authors');
 
 		// an alias to findAll
 		$authors->find();
@@ -108,7 +118,7 @@ class DynaModelTest extends TestCase
 
 	public function testBelongsTo()
 	{
-		$posts = Arifrh\DynaModel\DB::table('posts');
+		$posts = DB::table('posts');
 		$posts->belongsTo('authors');
 
 		$postAuthor = $posts->with('authors')
@@ -120,7 +130,7 @@ class DynaModelTest extends TestCase
 
 	public function testBelongsToCustom()
 	{
-		$posts = Arifrh\DynaModel\DB::table('posts');
+		$posts = DB::table('posts');
 
 		$allPosts = $posts->findAll();
 		$this->assertSame(5, $posts->countAllResults());
@@ -159,7 +169,7 @@ class DynaModelTest extends TestCase
 
 	public function testHasMany()
 	{
-		$authors = Arifrh\DynaModel\DB::table('authors');
+		$authors = DB::table('authors');
 		$authors->hasMany('posts');
 
 		$authorPosts = $authors->with('posts')->find(1);
@@ -175,7 +185,7 @@ class DynaModelTest extends TestCase
 
 	public function testHasManyCustom()
 	{
-		$authors = Arifrh\DynaModel\DB::table('authors');
+		$authors = DB::table('authors');
 
 		// set relation with alias and ordering
 		$alias = 'article';
@@ -223,5 +233,15 @@ class DynaModelTest extends TestCase
 		$article_status = dot_array_search('*.article', [$draftArticles]);
 
 		$this->assertSame(1, count($article_status));
+	}
+
+	public function testHelper()
+	{
+		$authors = DB::table('authors');
+		$data    = $authors->find([2]);
+
+		$options = array_key_value($data, ['id' => 'name, email'], [], ' | ');
+
+		$this->assertEquals($options, [2 => "Budhe Ana | budhe@world.com"]);
 	}
 }

@@ -1,5 +1,7 @@
 <?php 
+// @codeCoverageIgnoreStart
 if (!function_exists('array_group_by')) {
+// @codeCoverageIgnoreEnd
 	/**
 	 * Groups an array by a given key.
 	 *
@@ -26,8 +28,10 @@ if (!function_exists('array_group_by')) {
 	function array_group_by(array $array, $key)
 	{
 		if (!is_string($key) && !is_int($key) && !is_float($key) && !is_callable($key) ) {
+			// @codeCoverageIgnoreStart
 			trigger_error('array_group_by(): The key should be a string, an integer, or a callback', E_USER_ERROR);
 			return null;
+			// @codeCoverageIgnoreEnd
 		}
 
 		$func = (!is_string($key) && is_callable($key) ? $key : null);
@@ -68,7 +72,9 @@ if (!function_exists('array_group_by')) {
 	}
 }
 
+// @codeCoverageIgnoreStart
 if (!function_exists('array_key_value')) {
+// @codeCoverageIgnoreEnd
 	/** 
 	 * Geneerat key-value pairs from array
 	 * Example usage for generating options for dropdown
