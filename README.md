@@ -1,7 +1,7 @@
 # DynaModel
 Dynamic Model for CodeIgniter 4
 ===============================
-[![Build Status](https://travis-ci.com/arif-rh/ci4-dynamic-model.svg?branch=master)](https://travis-ci.com/arif-rh/ci4-dynamic-model)  [![Coverage Status](https://coveralls.io/repos/github/arif-rh/ci4-dynamic-model/badge.svg?branch=master)](https://coveralls.io/github/arif-rh/ci4-dynamic-model?branch=master)
+[![Build Status](https://travis-ci.com/arif-rh/ci4-dynamic-model.svg?branch=master)](https://travis-ci.com/arif-rh/ci4-dynamic-model)  [![Coverage Status](https://coveralls.io/repos/github/arif-rh/ci4-dynamic-model/badge.svg?branch=master)](https://coveralls.io/github/arif-rh/ci4-dynamic-model?branch=master)  [![PHPStan](https://img.shields.io/badge/PHPStand-enabled-brightgreen)](https://github.com/phpstan/phpstan)  [![PHPStan Level](https://img.shields.io/badge/PHPStand%20Level-8-brightgreen)](https://github.com/phpstan/phpstan)
 
 ## Feature
 * Dynamically Creating the Model on-the-fly
@@ -60,4 +60,16 @@ Dynamic Model for CodeIgniter 4
     // you can also filter posts based on comments criteria
     $postModel->with('comments')->whereRelation('comments', ['status' => 'approved'])->findAll();
     // will display all posts with approved comments only
+````
+## Testing
+
+````
+    composer test
+
+    // or
+
+    composer testdox
+
+    // analyse code
+    composer analyse
 ````
