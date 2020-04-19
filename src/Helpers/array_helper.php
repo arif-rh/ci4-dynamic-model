@@ -44,9 +44,9 @@ if (!function_exists('array_group_by')) {
 
 			if (is_callable($func)) {
 				$key = call_user_func($func, $value);
-			} elseif (is_object($value) && property_exists($value, $_key)) {
+			} elseif (is_string($_key) && is_object($value) && property_exists($value, $_key)) {
 				$key = $value->{$_key};
-			} elseif (is_array($value) && isset($value[$_key])) {
+			} elseif (is_string($_key) && is_array($value) && isset($value[$_key])) {
 				$key = $value[$_key];
 			}
 
@@ -65,7 +65,7 @@ if (!function_exists('array_group_by')) {
 
 			foreach ($grouped as $key => $value) {
 				$params = array_merge([ $value ], array_slice($args, 2, func_num_args()));
-				$grouped[$key] = call_user_func_array('array_group_by', $params);
+				$grouped[$key] = call_user_func_array('array_group_by', ...$params);
 			}
 		}
 		// @codeCoverageIgnoreEnd
