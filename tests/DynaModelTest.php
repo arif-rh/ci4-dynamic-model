@@ -64,6 +64,19 @@ class DynaModelTest extends TestCase
 		$this->assertSame('Tante Ais', $author->name);
 	}
 
+	public function testPaginate()
+	{
+		helper('url');
+		$authors = DB::table('authors');
+		$page_1  = $authors->paginate(2, $authors->getDBGroup(), 1);
+		$page_2  = $authors->paginate(2, $authors->getDBGroup(), 2);
+
+		$this->assertSame(count($page_1), count($page_2));
+
+		$this->assertSame(1, $page_1[0]['id']);
+		$this->assertSame(3, $page_2[0]['id']);
+	}
+
 	public function testSoftDelete()
 	{
 		$table = 'authors';
@@ -74,15 +87,15 @@ class DynaModelTest extends TestCase
 		$authors->delete(1);
 
 		$authors->find();
-
 		$this->assertSame(3, $authors->countAllResults());
 
-		$authors->withDeleted()->find();
+		$authors->findAll();
+		$this->assertSame(3, $authors->countAllResults());
 
+		$authors->withDeleted()->findAll();
 		$this->assertSame(4, $authors->withDeleted()->countAllResults());
 
-		$authors->onlyDeleted()->find();
-
+		$authors->onlyDeleted()->findAll();
 		$this->assertSame(1, $authors->onlyDeleted()->countAllResults());
 
 		
@@ -195,7 +208,6 @@ class DynaModelTest extends TestCase
 								  ->find([1,3]);
 
 		$article_status = dot_array_search('*.article.*.status', $authorArticles);
-		
 		$this->assertSame('draft', $article_status);
 
 		// set relation with alias and ordering
@@ -205,7 +217,6 @@ class DynaModelTest extends TestCase
 								   ->find([1,3]);
 
 		$article_status = dot_array_search('*.article.*.status', $authorArticles);
-		
 		$this->assertSame('publish', $article_status);
 
 		// filtered based on publish status
@@ -222,17 +233,25 @@ class DynaModelTest extends TestCase
 								  ->find(2);
 
 		$article_status = dot_array_search('*.article', [$draftArticles]);
-
 		$this->assertEmpty($article_status);
-
 
 		$draftArticles = $authors->with($alias)
 								  ->whereRelation($alias, ['status' => 'publish'])
 								  ->find(2);
 
 		$article_status = dot_array_search('*.article', [$draftArticles]);
-
 		$this->assertSame(1, count($article_status));
+
+		// relation when parent is empty
+		$authors->useSoftDelete()->delete([1,2,3,4]);
+		
+
+		$empty_results = $authors->with($alias)
+									->whereRelation($alias, ['status' => 'publish'])
+									->asObject()
+									->findAll();
+
+		$this->assertEmpty($empty_results);
 	}
 
 	public function testHelper()
