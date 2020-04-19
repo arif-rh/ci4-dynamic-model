@@ -177,6 +177,14 @@ trait DynaModelTrait
     }
 
     /**
+     * This can be used when calling paginate
+     */
+    public function getDBGroup()
+    {
+        return $this->DBGroup;
+    }
+
+    /**
      * ---------------------------------
      * End of Override parent Methods
      * ---------------------------------
@@ -508,7 +516,7 @@ trait DynaModelTrait
      */
     protected function buildRelationship($data)
     {
-        if (empty($data))
+        if (empty($data['data']))
         {
             return $data;
         }
