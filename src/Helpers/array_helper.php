@@ -10,8 +10,8 @@ if (!function_exists('array_group_by')) {
 	 * Based on {@author Jake Zatecky}'s {@link https://github.com/jakezatecky/array_group_by array_group_by()} function.
 	 * This variant allows $key to be closures.
 	 *
-	 * @param array $array   The array to have grouping performed on.
-	 * @param mixed $key,... The key to group or split by. Can be a _string_,
+	 * @param mixed[] $array   The array to have grouping performed on.
+	 * @param mixed   $key,... The key to group or split by. Can be a _string_,
 	 *                       an _integer_, a _float_, or a _callable_.
 	 *
 	 *                       If the key is a callback, it must return
@@ -23,7 +23,7 @@ if (!function_exists('array_group_by')) {
 	 *                       string|int callback ( mixed $item )
 	 *                       ```
 	 *
-	 * @return array|null Returns a multidimensional array or `null` if `$key` is invalid.
+	 * @return mixed[]|null Returns a multidimensional array or `null` if `$key` is invalid.
 	 */
 	function array_group_by(array $array, $key)
 	{
@@ -81,12 +81,12 @@ if (!function_exists('array_key_value')) {
 	 * Geneerat key-value pairs from array
 	 * Example usage for generating options for dropdown
 	 * 
-	 * @param array  $array array source data
-	 * @param array  $keyPairs  key-value pair array to be used in result
-	 * @param array  $initialReturn initial return array
-	 * @param string $separator this will be used to be used as separator when has multiple value
+	 * @param mixed[]  $array array source data
+	 * @param mixed[]  $keyPairs  key-value pair array to be used in result
+	 * @param mixed[]  $initialReturn initial return array
+	 * @param string  $separator this will be used to be used as separator when has multiple value
 	 * 
-	 * @return array
+	 * @return mixed[]
 	 */
 	function array_key_value(array $array, array $keyPairs, $initialReturn = [], $separator = ""): array
 	{

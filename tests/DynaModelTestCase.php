@@ -22,7 +22,7 @@ class DynaModelTestCase extends TestCase
 	 * The seed file(s) used for all tests within this test case.
 	 * Should be fully-namespaced or relative to $basePath
 	 *
-	 * @var string|array
+	 * @var string|mixed[]
 	 */
 	protected $seed = [
 		'Arifrh\DynaModelTests\Database\Seeds\DynaModelTestSeeder'
@@ -34,7 +34,7 @@ class DynaModelTestCase extends TestCase
 	 * Note that running "all" runs migrations in date order,
 	 * but specifying namespaces runs them in namespace order (then date)
 	 *
-	 * @var string|array|null
+	 * @var string|mixed[]|null
 	 */
 	protected $namespace = 'Arifrh\DynaModelTests';
 
@@ -79,7 +79,7 @@ class DynaModelTestCase extends TestCase
 	 * Stores information needed to remove any
 	 * rows inserted via $this->hasInDatabase();
 	 *
-	 * @var array
+	 * @var mixed[]
 	 */
 	protected $insertCache = [];
 
