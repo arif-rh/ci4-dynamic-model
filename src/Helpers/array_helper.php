@@ -80,6 +80,13 @@ if (!function_exists('array_key_value')) {
 	/** 
 	 * Geneerat key-value pairs from array
 	 * Example usage for generating options for dropdown
+	 * 
+	 * @param array  $array array source data
+	 * @param array  $keyPairs  key-value pair array to be used in result
+	 * @param array  $initialReturn initial return array
+	 * @param string $separator this will be used to be used as separator when has multiple value
+	 * 
+	 * @return array
 	 */
 	function array_key_value(array $array, array $keyPairs, $initialReturn = [], $separator = ""): array
 	{

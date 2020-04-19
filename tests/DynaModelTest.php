@@ -5,13 +5,13 @@ use Arifrh\DynaModelTests\DynaModelTestCase as TestCase;
 
 final class DynaModelTest extends TestCase
 {
-	public function testInitFromClass()
+	public function testInitFromClass():void
 	{
 		$authors = new \Arifrh\DynaModelTests\Models\AuthorModel();
 		$this->assertInstanceOf(\CodeIgniter\Model::class, $authors);
 	}
 
-	public function testInitDynamically()
+	public function testInitDynamically():void
 	{
 		$table = 'authors';
 
@@ -21,7 +21,7 @@ final class DynaModelTest extends TestCase
 		$this->assertSame($table, $authors->getTableName());
 	}
 
-	public function testSetPrimaryKey()
+	public function testSetPrimaryKey():void
 	{
 		$primaryKey = 'email';
 
@@ -30,7 +30,7 @@ final class DynaModelTest extends TestCase
 		$this->assertSame($primaryKey, $authors->getPrimaryKey());
 	}
 
-	public function testResetQuery()
+	public function testResetQuery():void
 	{
 		$comments = DB::table('comments');
 
@@ -40,10 +40,7 @@ final class DynaModelTest extends TestCase
 		$this->assertSame(4, $row['id']);
 	}
 
-	/**
-	 * @covers Arifrh\DynaModel\Models\DynaModel::last
-	 */
-	public function testLast()
+	public function testLast():void
 	{
 		$table = 'authors';
 
@@ -66,7 +63,7 @@ final class DynaModelTest extends TestCase
 		$this->assertSame('Tante Ais', $author->name);
 	}
 
-	public function testPaginate()
+	public function testPaginate():void
 	{
 		helper('url');
 		$authors = DB::table('authors');
@@ -79,7 +76,7 @@ final class DynaModelTest extends TestCase
 		$this->assertSame(3, $page_2[0]['id']);
 	}
 
-	public function testSoftDelete()
+	public function testSoftDelete():void
 	{
 		$table = 'authors';
 
@@ -103,7 +100,7 @@ final class DynaModelTest extends TestCase
 		
 	}
 
-	public function testFindAll()
+	public function testFindAll():void
 	{
 		$authors = DB::table('authors');
 		$authors->findAll();
@@ -111,7 +108,7 @@ final class DynaModelTest extends TestCase
 		$this->assertSame(4, $authors->countAllResults());
 	}
 
-	public function testFind()
+	public function testFind():void
 	{
 		$authors = DB::table('authors');
 
@@ -131,7 +128,7 @@ final class DynaModelTest extends TestCase
 		$this->assertSame(2, $authors->countAllResults());
 	}
 
-	public function testBelongsTo()
+	public function testBelongsTo():void
 	{
 		$posts = DB::table('posts');
 		$posts->belongsTo('authors');
@@ -143,7 +140,7 @@ final class DynaModelTest extends TestCase
 		$this->assertSame('Tante Ais', $postAuthor->name);
 	}
 
-	public function testBelongsToCustom()
+	public function testBelongsToCustom():void
 	{
 		$posts = DB::table('posts');
 
@@ -182,7 +179,7 @@ final class DynaModelTest extends TestCase
 		$this->assertCount(3, $postAuthor);
 	}
 
-	public function testHasMany()
+	public function testHasMany():void
 	{
 		$authors = DB::table('authors');
 		$authors->hasMany('posts');
@@ -198,7 +195,7 @@ final class DynaModelTest extends TestCase
 		$this->assertCount(2, $authorPosts->posts);
 	}
 
-	public function testHasManyCustom()
+	public function testHasManyCustom():void
 	{
 		$authors = DB::table('authors');
 
@@ -256,7 +253,7 @@ final class DynaModelTest extends TestCase
 		$this->assertEmpty($empty_results);
 	}
 
-	public function testHelper()
+	public function testHelper():void
 	{
 		$authors = DB::table('authors');
 		$data    = $authors->find([2]);
