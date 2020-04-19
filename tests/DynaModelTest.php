@@ -34,30 +34,34 @@ final class DynaModelTest extends TestCase
 	{
 		$comments = DB::table('comments');
 
-		$comments->orderBy('id', 'asc');
-		$row = $comments->resetQuery()->orderBy('id', 'desc')->first();
+		$comments->setOrderBy(['id' => 'asc']);
+		$row = $comments->resetQuery()->setOrderBy(['id' => 'desc'])->first();
 
 		$this->assertSame(4, $row['id']);
 	}
 
+	/**
+	 * @covers Arifrh\DynaModel\Models\DynaModel::last
+	 */
 	public function testLast()
 	{
 		$table = 'authors';
 
 		$authors = DB::table($table);
-		$author = $authors->asObject()->last();
+		$author = $authors->last();
 
-		$this->assertSame('Tante Ais', $author->name);
+		$this->assertSame('Tante Ais', $author['name']);
 
 		// last after deleted
 		$authors->useSoftDelete()->delete(4);
 
-		$author = $authors->asObject()->last();
+		$author = $authors->last();
 
-		$this->assertSame('Simbah Mas', $author->name);
+		$this->assertSame('Simbah Mas', $author['name']);
 
 		// get last with deleted
-		$author = $authors->asObject()->withDeleted()->last();
+		$authors->asObject()->withDeleted();
+		$author = $authors->last();
 
 		$this->assertSame('Tante Ais', $author->name);
 	}
@@ -69,7 +73,7 @@ final class DynaModelTest extends TestCase
 		$page_1  = $authors->paginate(2, $authors->getDBGroup(), 1);
 		$page_2  = $authors->paginate(2, $authors->getDBGroup(), 2);
 
-		$this->assertSame(count($page_1), count($page_2));
+		$this->assertCount(count($page_1), $page_2);
 
 		$this->assertSame(1, $page_1[0]['id']);
 		$this->assertSame(3, $page_2[0]['id']);
@@ -162,20 +166,20 @@ final class DynaModelTest extends TestCase
 							->whereRelation($parentTable, ['active' => 1])
 							->findAll();
 
-		$this->assertSame(4, count($postAuthor));
+		$this->assertCount(4, $postAuthor);
 
 		$postAuthor = $posts->with($parentTable)
 							->whereRelation($parentTable, ['active' => 0])
 							->findAll();
 
-		$this->assertSame(1, count($postAuthor));
+		$this->assertCount(1, $postAuthor);
 
 		// filter based on array conditions
 		$postAuthor = $posts->with($parentTable)
 							->whereRelation($parentTable, ['email' => ['pakdhe@world.com','budhe@world.com']])
 							->findAll();
 
-		$this->assertSame(3, count($postAuthor));
+		$this->assertCount(3, $postAuthor);
 	}
 
 	public function testHasMany()
@@ -185,13 +189,13 @@ final class DynaModelTest extends TestCase
 
 		$authorPosts = $authors->with('posts')->find(1);
 
-		$this->assertSame(2, count($authorPosts['posts']));
+		$this->assertCount(2, $authorPosts['posts']);
 
 		$authorPosts = $authors->with('posts')
 								->asObject()
 								->find(1);
 
-		$this->assertSame(2, count($authorPosts->posts));
+		$this->assertCount(2, $authorPosts->posts);
 	}
 
 	public function testHasManyCustom()
@@ -223,7 +227,7 @@ final class DynaModelTest extends TestCase
 									->asObject()
 									->findAll();
 
-		$this->assertSame(4, count($publish_articles));
+		$this->assertCount(4, $publish_articles);
 
 		// filter for empty result
 		$draftArticles = $authors->with($alias)
@@ -238,7 +242,7 @@ final class DynaModelTest extends TestCase
 								  ->find(2);
 
 		$article_status = dot_array_search('*.article', [$draftArticles]);
-		$this->assertSame(1, count($article_status));
+		$this->assertCount(1, $article_status);
 
 		// relation when parent is empty
 		$authors->useSoftDelete()->delete([1,2,3,4]);
