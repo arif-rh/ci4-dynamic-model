@@ -27,12 +27,12 @@ if (!function_exists('array_group_by')) {
 	 */
 	function array_group_by(array $array, $key)
 	{
+		// @codeCoverageIgnoreStart
 		if (!is_string($key) && !is_int($key) && !is_float($key) && !is_callable($key) ) {
-			// @codeCoverageIgnoreStart
 			trigger_error('array_group_by(): The key should be a string, an integer, or a callback', E_USER_ERROR);
 			return null;
-			// @codeCoverageIgnoreEnd
 		}
+		// @codeCoverageIgnoreEnd
 
 		$func = (!is_string($key) && is_callable($key) ? $key : null);
 		$_key = $key;
@@ -53,10 +53,11 @@ if (!function_exists('array_group_by')) {
 			if ($key === null) {
 				continue;
 			}
-
+			
 			$grouped[$key][] = $value;
 		}
 
+		// @codeCoverageIgnoreStart
 		// Recursively build a nested grouping if more parameters are supplied
 		// Each grouped array value is grouped according to the next sequential key
 		if (func_num_args() > 2) {
@@ -67,6 +68,7 @@ if (!function_exists('array_group_by')) {
 				$grouped[$key] = call_user_func_array('array_group_by', $params);
 			}
 		}
+		// @codeCoverageIgnoreEnd
 
 		return $grouped;
 	}
