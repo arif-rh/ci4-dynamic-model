@@ -2,6 +2,7 @@
 
 namespace Arifrh\DynaModel;
 
+use \CodeIgniter\Config\Config;
 use Arifrh\DynaModel\Exceptions\DBException;
 /**
 *  Starter Kit for creating composer package
@@ -10,11 +11,18 @@ use Arifrh\DynaModel\Exceptions\DBException;
 */
 class DB
 {
+    /**
+     * @param string      $table table name to be created as model
+     * @param null|string $primaryKey if omit, it will be autodetect based on primary key field in table
+     * @param null|string $DBGroup database group, if omit will use defaultGroup from config
+     * 
+     * @return \CodeIgniter\Model
+     */
     public static function table($table = null, $primaryKey = null, $DBGroup = null)
     {
         if (is_null($DBGroup))
         {
-            $config  = config('Database');
+            $config  = Config::get('Database');
             $DBGroup = $config->defaultGroup; 
         }
 

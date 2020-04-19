@@ -5,6 +5,8 @@ use Config\Database;
 use Config\Migrations;
 use Arifrh\DynaModel\DB;
 use PHPUnit\Framework\TestCase;
+use CodeIgniter\Database\BaseConnection;
+use CodeIgniter\Exceptions\ConfigException;
 
 class DynaModelTestCase extends TestCase
 {
@@ -85,6 +87,8 @@ class DynaModelTestCase extends TestCase
 
 	/**
 	 * Load any database test dependencies.
+	 * 
+	 * @return void
 	 */
 	public function loadDependencies()
 	{
@@ -105,6 +109,11 @@ class DynaModelTestCase extends TestCase
 		}
 	}
 
+	/**
+	 * Load any seeder and call it.
+	 * 
+	 * @return void
+	 */
 	public function loadSeeder()
 	{
 		if ($this->seeder === null)

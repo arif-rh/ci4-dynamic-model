@@ -1,15 +1,13 @@
-<?php 
-
-declare(strict_types=1);
+<?php namespace Arifrh\DynaModelTests;
 
 use Arifrh\DynaModel\DB;
 use Arifrh\DynaModelTests\DynaModelTestCase as TestCase;
 
-class DynaModelTest extends TestCase
+final class DynaModelTest extends TestCase
 {
 	public function testInitFromClass()
 	{
-		$authors = new Arifrh\DynaModelTests\Models\AuthorModel();
+		$authors = new \Arifrh\DynaModelTests\Models\AuthorModel();
 		$this->assertInstanceOf(\CodeIgniter\Model::class, $authors);
 	}
 

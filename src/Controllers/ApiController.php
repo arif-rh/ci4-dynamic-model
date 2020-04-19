@@ -15,6 +15,9 @@ class ApiController extends ResourceController
 {
     protected $modelName;
 
+    /**
+     * @return void
+     */
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
 	{
 		parent::initController($request, $response, $logger);
