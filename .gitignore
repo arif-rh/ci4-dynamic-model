@@ -4,6 +4,7 @@
 vendor/
 build/
 
+phpstan.neon
 phpunit.xml
 composer.lock
 *.cache

@@ -32,7 +32,7 @@ cache:
 
 script:
   - php vendor/bin/phpunit -v
-#  - sonar-scanner
+  - php vendor/bin/phpstan analyse
 
 before_install:
   - mysql -e "CREATE DATABASE IF NOT EXISTS test;" -uroot;
