@@ -6,5 +6,6 @@ define("TESTPATH", __DIR__."/../tests/");
 define("CI_DEBUG", "1");
 
 require_once __DIR__."/../vendor/codeigniter4/framework/system/Helpers/array_helper.php";
+require_once __DIR__."/../vendor/codeigniter4/framework/system/Helpers/inflector_helper.php";
 require_once __DIR__."/../src/Helpers/array_helper.php";
 require_once  __DIR__."/../vendor/codeigniter4/framework/system/Test/bootstrap.php";
