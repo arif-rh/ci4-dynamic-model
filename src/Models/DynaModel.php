@@ -8,7 +8,7 @@
 namespace Arifrh\DynaModel\Models;
 
 
-use CodeIgniter\Database\ConnectionInterface;
+use CodeIgniter\Database\BaseConnection;
 use CodeIgniter\Validation\ValidationInterface;
 use CodeIgniter\Model;
 use Arifrh\DynaModel\Models\DynaModelTrait;
@@ -20,7 +20,7 @@ class DynaModel extends Model
     /**
 	 * Overide Model constructor, to initialize the model
 	 */
-    public function __construct(ConnectionInterface &$db = null, ValidationInterface $validation = null)
+    public function __construct(BaseConnection &$db = null, ValidationInterface $validation = null)
 	{
         parent::__construct($db, $validation);
 

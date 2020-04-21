@@ -5,7 +5,7 @@ namespace Arifrh\DynaModel\Models;
 trait DynaModelTrait
 {
     /**
-     * Save valid real fields
+     * @var mixed[] $fieldInfo Save information of table fields
      */
     protected $fieldInfo = null;
 
@@ -14,38 +14,71 @@ trait DynaModelTrait
      * Relationship Properties
      * -------------------------
      */
+
     /**
      * Relationship Information
+     * 
+     * @var array{mixed?:string, mixed?:mixed[]} $relationships 
      */
     protected $relationships = [];
 
     /**
      * One-to-One/Many-to-One Relationship
+     * 
+     * @var array{
+     *  table:string, 
+     *  primaryKey?:string,
+     *  relationId?:string
+     * } $belongsTo 
      */
     protected $belongsTo = [];
 
     /**
      * One-to-Many Relationship
+     * 
+     * @var array{
+     *  table:string, 
+     *  primaryKey?:string,
+     *  relationId?:string,
+     *  orderBy?:mixed[]
+     * } $hasMany 
      */
     protected $hasMany = [];
 
      /**
      * Relationship Criteria
+     * 
+     * @var array{
+     *  mixed?:string,
+     *  mixed?:mixed[]
+     * } whereRelations
      */
     protected $whereRelations = [];
 
      /**
      * Callback Before Find - used for join operation in relationship
+     * 
+     * 
+     * @var mixed[] $beforeFind
      */
     protected $beforeFind = [];
 
     /**
+     * @var mixed[] $afterFind
+     */
+    protected $afterFind = [];
+
+    /**
      * Define Relationship JOIN Callback
+     * 
+     * @var string $relationshipJoinCallback
      */
     protected $relationshipJoinCallback = 'joinRelationship';
 
     /**
      * Define one-to-many Relationship Callback
+     * 
+     * @var string $relationshipCallback
      */
     protected $relationshipCallback = 'buildRelationship';
 
@@ -71,11 +104,11 @@ trait DynaModelTrait
      * collect field info
      * set the builder
      * 
-     * @param string $table table name
-     * @param string $primaryKey primary key field name
-     * @param array  $options key-pair of properties value 
+     * @param string    $table table name
+     * @param string    $primaryKey primary key field name
+     * @param mixed[]   $options key-pair of properties value 
      */
-    public function setTable(string $table, $primaryKey = null, $options = null)
+    public function setTable(string $table, $primaryKey = null, $options = null):self
 	{
 		$this->table = $table;
         
@@ -86,7 +119,11 @@ trait DynaModelTrait
         return $this;
     }
 
-    protected function initialize($table, $options = null)
+    /**
+     * @param string $table
+     * @param mixed  $options
+     */
+    protected function initialize($table, $options = null):self
     {
         helper('inflector');
         helper('array');
@@ -102,6 +139,11 @@ trait DynaModelTrait
      * Override find method to fix bug on using countAllResults
      * 
      * @see https://github.com/codeigniter4/CodeIgniter4/issues/2705 
+     * 
+     * @param null|int|string|mixed[]  $id 
+     * @param bool              $reset 
+     * 
+     * @return null|mixed[]
      */
     public function find($id = null, bool $reset = true)
 	{
@@ -142,6 +184,9 @@ trait DynaModelTrait
         return $eventData['data'];
     }
 
+    /**
+     * @return null|mixed[]
+     */
     public function findAll(int $limit = 0, int $offset = 0)
 	{
 		$builder = $this->builder();
@@ -169,15 +214,17 @@ trait DynaModelTrait
     /**
      * an alias to call parent resetSelect
      */
-    public function resetQuery()
+    public function resetQuery():self
     {
-        $this->getCompiledSelect(true);
+        $this->builder->getCompiledSelect(true);
 
         return $this;
     }
 
     /**
      * This can be used when calling paginate
+     * 
+     * @return string
      */
     public function getDBGroup()
     {
@@ -195,22 +242,35 @@ trait DynaModelTrait
      * 
      * @param string $table
      */
-    protected function collectFieldInfo($table = null)
+    protected function collectFieldInfo($table = null):void
     {
-        $table = $table ?? $this->table;
-
-        $fieldInfos = $this->db->getFieldData($table);
-
         $this->fieldInfo = [];
 
-        foreach($fieldInfos as $field)
+        $table = $table ?? $this->table;
+
+        /**
+         * @var \CodeIgniter\Database\BaseConnection $db
+         */
+        $db = $this->db;
+
+        $fieldInfos = $db->getFieldData($table);
+
+        if (is_array($fieldInfos))
         {
-            $this->fieldInfo[$field->name] = $field;
+            foreach($fieldInfos as $field)
+            {
+                $this->fieldInfo[$field->name] = $field;
+            }
         }
     }
 
     /**
      * Get All Field Information from current table
+     * 
+     * @param string $table
+     * @param bool   $primaryKey
+     * 
+     * @return mixed
      */
     public function getFieldInfo($table = null, $primaryKey = false)
     {
@@ -235,9 +295,14 @@ trait DynaModelTrait
      * 
      * @param string $primaryKey primary key field name
      */
-    public function setPrimaryKey($primaryKey = null)
+    public function setPrimaryKey($primaryKey = null):self
     {
-        if (!is_null($primaryKey) && $this->db->fieldExists($primaryKey, $this->table))
+        /**
+         * @var \CodeIgniter\Database\BaseConnection $db
+         */
+        $db = $this->db;
+
+        if (!is_null($primaryKey) && $db->fieldExists($primaryKey, $this->table))
         {
             $this->primaryKey = $primaryKey;
         }
@@ -251,19 +316,21 @@ trait DynaModelTrait
     /**
      * Guess the primary key for current table
      * 
-     * @param string $primaryKey if omit $primaryKey, system will find key automatically
+     * @param string $table if omit $table, system will find key automatically
+     * 
+     * @return mixed
      */
     private function fetchPrimaryKey($table = null)
     {
         return $this->getFieldInfo($table, true);
     }
 
-    public function getPrimaryKey()
+    public function getPrimaryKey():string
     {
         return $this->primaryKey;
     }
 
-    public function getTableName()
+    public function getTableName():string
     {
         return $this->table;
     }
@@ -271,9 +338,9 @@ trait DynaModelTrait
     /**
      * Set Properties of Model
      * 
-     * @param array $options property-value key pair of model
+     * @param mixed[] $options property-value key pair of model
      */
-    public function setOptions($options = null)
+    public function setOptions($options = null):self
     {
         if (is_array($options))
 		{
@@ -295,12 +362,17 @@ trait DynaModelTrait
      * @param boolean $useSoftDeletes 
      * @param string $deletedField  field name will be used as deleted, by default it use 'deleted_at'
      */
-    public function useSoftDelete($useSoftDeletes = true, $deletedField = null)
+    public function useSoftDelete($useSoftDeletes = true, $deletedField = null):self
     {
         $this->useSoftDeletes     = $useSoftDeletes;
         $this->tempUseSoftDeletes = $useSoftDeletes;
 
-        if (!is_null($deletedField) && $this->db->fieldExists($deletedField, $this->table))
+        /**
+         * @var \CodeIgniter\Database\BaseConnection $db
+         */
+        $db = $this->db;
+
+        if (!is_null($deletedField) && $db->fieldExists($deletedField, $this->table))
         {
             $this->deletedField = $deletedField;
         }
@@ -311,16 +383,16 @@ trait DynaModelTrait
     /**
      * Function to set Order by using array of multiple values
      * 
-     * @param array $orderBy only accept array of column order
+     * @param mixed[] $orderBy only accept array of column order
      * @param bool  $escape 
      */
-    public function setOrderBy(array $orderBy, bool $escape = null)
+    public function setOrderBy($orderBy, bool $escape = null):self
 	{
         if (is_array($orderBy))
         {
             foreach($orderBy as $column => $direction)
             {
-                parent::orderBy($column, $direction, $escape);
+                $this->builder->orderBy($column, $direction, $escape);
             }
         }
 
@@ -329,6 +401,8 @@ trait DynaModelTrait
 
     /**
      * Get Last row from the table
+     * 
+     * @return mixed[]|null
      */
     public function last()
     {
@@ -369,11 +443,11 @@ trait DynaModelTrait
      * Example:
      * $model->whereRelation('child_table', ['active' => 1]);
      * 
-     * @param string $alias relationship alias name
-     * @param array  $where array of filter conditions
+     * @param string   $alias relationship alias name
+     * @param mixed[]  $where array of filter conditions
      * 
      */
-    public function whereRelation($alias, $where)
+    public function whereRelation($alias, $where):self
     {
         if (is_array($where))
         {
@@ -388,10 +462,10 @@ trait DynaModelTrait
      * Example: 
      * $model->with('child_table', ['name as child_name', 'status']);
      * 
-     * @param string       $relationship alias of relationship
-     * @param array|string $columns column name to display from related table
+     * @param string        $relationship alias of relationship
+     * @param mixed[]|null  $columns column name to display from related table
      */
-    public function with($relationship, $columns = null)
+    public function with($relationship, $columns = null):self
     {
         $this->relationships[$relationship] = $columns;
 
@@ -414,9 +488,8 @@ trait DynaModelTrait
      * @param string $relatedTable related table 
      * @param string $relationId  by default it will use {singularRelatedTableName}_id
      * @param string $alias  relationship alias, will be used to attach relationship, by default it will use $relatedTable name
-     * @param array  $orderBy 
      */
-    public function belongsTo($relatedTable, $relationId = null, $alias = null)
+    public function belongsTo($relatedTable, $relationId = null, $alias = null):self
     {
         $relationId = $relationId ?? singular($relatedTable).'_id';
         $alias = $alias ?? $relatedTable;
@@ -433,12 +506,12 @@ trait DynaModelTrait
     /**
      * One To Many Relationship
      * 
-     * @param string $relatedTable related/child table 
-     * @param string $relationId  by default it will use {singularParentTableName}_id
-     * @param string $alias  relationship alias, will be used to attach relationship, by default it will use $relatedTable name
-     * @param array  $orderBy 
+     * @param string    $relatedTable related/child table 
+     * @param string    $relationId  by default it will use {singularParentTableName}_id
+     * @param string    $alias  relationship alias, will be used to attach relationship, by default it will use $relatedTable name
+     * @param mixed[]   $orderBy 
      */
-    public function hasMany($relatedTable, $relationId = null, $alias = null, $orderBy = null)
+    public function hasMany($relatedTable, $relationId = null, $alias = null, $orderBy = null):self
     {
         $relationId = $relationId ?? singular($this->table).'_id';
         $alias = $alias ?? $relatedTable;
@@ -456,8 +529,16 @@ trait DynaModelTrait
     /**
      * Join the relationship one-to-one / many-to-one
      */
-    protected function joinRelationship()
+    protected function joinRelationship():void
     {
+        /**
+         * @var string $alias
+         * @var array{
+         *  table:string,
+         *  primaryKey: string,
+         *  relationId: string
+         * } $relationInfo
+         */
         foreach ($this->belongsTo as $alias => $relationInfo)
         {
             if (array_key_exists($alias, $this->relationships))
@@ -465,11 +546,24 @@ trait DynaModelTrait
                 $this->addRelation($alias, $relationInfo);
             }
 
-            $this->filterRelationship($alias, $this, 'join');
+            /**
+             * @var \Arifrh\DynaModel\Models\DynaModel $this
+             */
+            $this->filterRelationship($alias, $this, $alias);
         }
     }
 
-    protected function addRelation($alias, $relationInfo)
+    /**
+     * @param string  $alias
+     * 
+     * @param array{
+     *  table:string,
+     *  primaryKey: string,
+     *  relationId: string,
+     *  orderBy?:mixed
+     * } $relationInfo
+     */
+    protected function addRelation($alias, $relationInfo):void
     {
         $parentFields = $this->getFieldInfo();
 
@@ -504,15 +598,22 @@ trait DynaModelTrait
             }
         }
 
-        $this->select($columns, false);
+        $this->builder->select($columns, false);
         
-        $this->join($this->db->prefixTable($relationInfo['table'])." AS {$alias}", "{$alias}.{$relationInfo['primaryKey']} = {$this->table}.{$relationInfo['relationId']}");
+        /**
+         * @var \CodeIgniter\Database\BaseConnection $db
+         */
+        $db = $this->db;
+
+        $this->builder->join($db->prefixTable($relationInfo['table'])." AS {$alias}", "{$alias}.{$relationInfo['primaryKey']} = {$this->table}.{$relationInfo['relationId']}");
     }
 
     /**
      * Build Relationship One to Many
      * 
-     * @param array $data result data from builder
+     * @param mixed[]|null $data result data from builder
+     * 
+     * @return mixed[]|null
      */
     protected function buildRelationship($data)
     {
@@ -521,6 +622,16 @@ trait DynaModelTrait
             return $data;
         }
 
+        /**
+         * @var array{
+         *  table:string,
+         *  primaryKey: string,
+         *  relationId: string,
+         *  orderBy:mixed[]
+         * } $relationInfo
+         * 
+         * @var string $alias
+         */
         foreach ($this->hasMany as $alias => $relationInfo)
         {
             if (array_key_exists($alias, $this->relationships))
@@ -539,9 +650,9 @@ trait DynaModelTrait
                     $related = \Arifrh\DynaModel\DB::table($relationInfo['table']);
                     
                     $related->setOrderBy($relationInfo['orderBy']);
-                    $related->whereIn($relationInfo['relationId'], $keys);
+                    $related->builder->whereIn($relationInfo['relationId'], $keys);
 
-                    $this->filterRelationship($alias, $related);
+                    $this->filterRelationship($alias, $related, $this->table);
 
                     $relationData = $related->findAll();
 
@@ -558,70 +669,75 @@ trait DynaModelTrait
     /**
      * Attach Relationship Data to Parent
      * 
-     * @param array  $resultData result array of parent table
-     * @param array  $childData  result of related table
-     * @param string $fieldAlias relationship alias
-     * @param string $relationId foreign key in parent table
-     * @param string $primaryKey primary key of related table, which related to foreign key
+     * @param mixed[]  $resultData result array of parent table
+     * @param mixed[]|null  $childData  result of related table
+     * @param string        $fieldAlias relationship alias
+     * @param string        $relationId foreign key in parent table
+     * @param string        $primaryKey primary key of related table, which related to foreign key
+     * 
+     * @return mixed[]
      */
     protected function attachRelationData($resultData, $childData, $fieldAlias, $relationId, $primaryKey)
     {
-        $parentData = $resultData['data'];
+        $parentData = $resultData['data'] ?? $resultData;
 
-        $relationData = array_group_by($childData, $relationId);
-
-        $singleRow = $this->isSingleResult($resultData);
-
-        if (!$singleRow)
+        if (is_array($childData) && count($childData)>0)
         {
-            foreach($parentData as $i => $row)
+            $relationData = array_group_by($childData, $relationId);
+
+            $singleRow = $this->isSingleResult($resultData);
+
+            if (!$singleRow)
             {
-                if ($this->returnIsObject())
+                foreach($parentData as $i => $row)
                 {
-                    $parentData[$i]->{$fieldAlias} = [];
-
-                    $relationValue = $parentData[$i]->{$primaryKey};
-
-                    if (isset($relationData[$relationValue]))
+                    if ($this->returnIsObject())
                     {
-                        $parentData[$i]->{$fieldAlias} = $relationData[$relationValue];
+                        $parentData[$i]->{$fieldAlias} = [];
+
+                        $relationValue = $parentData[$i]->{$primaryKey};
+
+                        if (isset($relationData[$relationValue]))
+                        {
+                            $parentData[$i]->{$fieldAlias} = $relationData[$relationValue];
+                        }
                     }
-                }
-                else 
-                {
-                    $parentData[$i][$fieldAlias] = [];
-
-                    $relationValue = $parentData[$i][$primaryKey];
-
-                    if (isset($relationData[$relationValue]))
+                    else 
                     {
-                        $parentData[$i][$fieldAlias] = $relationData[$relationValue];
+                        $parentData[$i][$fieldAlias] = [];
+
+                        $relationValue = $parentData[$i][$primaryKey];
+
+                        if (isset($relationData[$relationValue]))
+                        {
+                            $parentData[$i][$fieldAlias] = $relationData[$relationValue];
+                        }
                     }
-                }
-            }
-        }
-        else 
-        {
-            if ($this->returnIsObject())
-            {
-                $parentData->{$fieldAlias} = [];
-
-                $relationValue = $parentData->{$primaryKey};
-
-                if (isset($relationData[$relationValue]))
-                {
-                    $parentData->{$fieldAlias} = $relationData[$relationValue];
                 }
             }
             else 
             {
-                $parentData[$fieldAlias] = [];
-
-                $relationValue = $parentData[$primaryKey];
-
-                if (isset($relationData[$relationValue]))
+                if ($this->returnIsObject())
                 {
-                    $parentData[$fieldAlias] = $relationData[$relationValue];
+                    $parentData->{$fieldAlias} = [];
+
+                    $relationValue = $parentData->{$primaryKey};
+
+                    if (isset($relationData[$relationValue]))
+                    {
+                        $parentData->{$fieldAlias} = $relationData[$relationValue];
+                    }
+                }
+                else 
+                {
+                    $parentData[$fieldAlias] = [];
+
+                    $relationValue = $parentData[$primaryKey];
+
+                    if (isset($relationData[$relationValue]))
+                    {
+                        $parentData[$fieldAlias] = $relationData[$relationValue];
+                    }
                 }
             }
         }
@@ -629,7 +745,10 @@ trait DynaModelTrait
         return $parentData;
     }
 
-    protected function isSingleResult($resultData = null)
+    /**
+     * @param null|mixed[] $resultData
+     */
+    protected function isSingleResult($resultData = null):bool
     {
         return isset($resultData['id']) && (is_numeric($resultData['id']) || is_string($resultData['id']));
     }
@@ -637,25 +756,25 @@ trait DynaModelTrait
      * Filter relationship data
      * 
      * @param string $alias relationship alias
-     * @param array  $model model to be filtered
+     * @param \Arifrh\DynaModel\Models\DynaModel  $model model to be filtered
+     * @param string   $table
      */
-    protected function filterRelationship($alias, $model, $type = null)
+    protected function filterRelationship($alias, $model, $table):void
     {
+        $builder = $model->builder();
         if (array_key_exists($alias, $this->whereRelations))
         {
-            $table    = $type == 'join' ? $alias : $model->getTableName();
-
             foreach($this->whereRelations[$alias] as $where => $condition)
             {
                 if (is_array($condition))
                 {
-                    $model->whereIn($table.".".$where, $condition);
+                    $builder->whereIn($table.".".$where, $condition);
                 }
                 else 
                 {
                     $aliasWhere = [$table.".".$where => $condition]; 
 
-                    $model->where($aliasWhere);
+                    $builder->where($aliasWhere);
                 }
             }
         }
@@ -664,7 +783,7 @@ trait DynaModelTrait
     /**
      * Reset Relationship Callback to avoid re-building relationship in each find/get call
      */
-    protected function resetRelationship()
+    protected function resetRelationship():void
     {
         if (($key = array_search($this->relationshipJoinCallback, $this->beforeFind)) !== false) {
             unset($this->beforeFind[$key]);
@@ -678,11 +797,12 @@ trait DynaModelTrait
     /**
      * Get all of the primary keys for an array of data.
      *
-     * @param  array   $models
-     * @param  string  $key
-     * @return array
+     * @param  mixed[]      $data
+     * @param  string|null  $field
+     * 
+     * @return mixed[]|null
      */
-    protected function getColumns(array $data, $field = null)
+    protected function getColumns($data, $field = null)
     {
         $field = $field ?? $this->primaryKey;
 
@@ -714,7 +834,7 @@ trait DynaModelTrait
         return array_unique($columns);
     }
 
-    protected function returnIsObject()
+    protected function returnIsObject():bool
     {
         return $this->tempReturnType == 'object';
     }
