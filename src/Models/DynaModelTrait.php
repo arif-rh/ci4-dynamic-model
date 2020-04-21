@@ -554,6 +554,8 @@ trait DynaModelTrait
     }
 
     /**
+     * Add Relation one-to-one / many-to-one
+     * 
      * @param string  $alias
      * 
      * @param array{
@@ -646,13 +648,13 @@ trait DynaModelTrait
                     }
 
                     $keys = $this->getColumns($parentData, $relationInfo['primaryKey']);
-
+                    
                     $related = \Arifrh\DynaModel\DB::table($relationInfo['table']);
                     
                     $related->setOrderBy($relationInfo['orderBy']);
                     $related->builder->whereIn($relationInfo['relationId'], $keys);
 
-                    $this->filterRelationship($alias, $related, $this->table);
+                    $this->filterRelationship($alias, $related, $relationInfo['table']);
 
                     $relationData = $related->findAll();
 
@@ -757,7 +759,7 @@ trait DynaModelTrait
      * 
      * @param string $alias relationship alias
      * @param \Arifrh\DynaModel\Models\DynaModel  $model model to be filtered
-     * @param string   $table
+     * @param string $table
      */
     protected function filterRelationship($alias, $model, $table):void
     {

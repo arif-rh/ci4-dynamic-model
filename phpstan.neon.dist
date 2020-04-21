@@ -5,4 +5,5 @@ parameters:
 		- tests
 	excludes_analyse:
 		- tests/Database/*
+		- tests/DynaModelTest.php
 	bootstrap: tests/Bootstrap.php

@@ -72,17 +72,10 @@ final class DynaModelTest extends TestCase
 		$page_1  = $authors->paginate(2, $authors->getDBGroup(), 1);
 		$page_2  = $authors->paginate(2, $authors->getDBGroup(), 2);
 
-		if (!empty($page_1) && !empty($page_1) && is_array($page_1) && is_array($page_2))
-		{
-			$this->assertCount(count($page_1), $page_2);
+		$this->assertCount(count($page_1), $page_2);
 
-			$this->assertSame(1, $page_1[0]['id']);
-			$this->assertSame(3, $page_2[0]['id']);
-		}
-		else 
-		{
-			$this->assertSame($page_1, $page_2);
-		}
+		$this->assertSame(1, $page_1[0]['id']);
+		$this->assertSame(3, $page_2[0]['id']);
 	}
 
 	public function testSoftDelete():void
