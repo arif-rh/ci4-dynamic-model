@@ -1,5 +1,5 @@
 <?php
 
 return [
-	'tableNotFound'       => 'Could not find table "{0}".',
+   'tableNotFound' => 'Could not find table "{0}".',
 ];

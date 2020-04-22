@@ -14,12 +14,14 @@
 		"php": ">=7.2"
     },
     "require-dev": {
-        "phpunit/phpunit": "8.5.*",
-        "codeigniter4/framework": "4.0.*",
+        "phpunit/phpunit": "^8.5",
+        "codeigniter4/framework": "^4.0",
         "php-coveralls/php-coveralls": "^2.2",
         "phpstan/phpstan": "^0.12.19",
         "phpstan/extension-installer": "^1.0",
-        "phpstan/phpstan-phpunit": "^0.12.8"
+        "phpstan/phpstan-phpunit": "^0.12.8",
+        "codeigniter4/codeigniter4-standard": "^1.0",
+        "squizlabs/php_codesniffer": "^3.3"
     },
     "autoload": {
         "psr-4": {
@@ -34,6 +36,10 @@
 	"scripts": {
         "test": "phpunit",
         "testdox": "phpunit --testdox",
-        "analyse": "phpstan analyse"
+        "analyse": "phpstan analyse",
+        "post-update-cmd": [
+            "@composer dump-autoload",
+            "bash src/bin/setup.sh"
+        ]
 	}
 }
