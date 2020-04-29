@@ -2,12 +2,28 @@
 
 namespace Arifrh\DynaModel\Models;
 
+/**
+ * This trait can be use inside existing \CodeIgniter\Model
+ * to support any new ability like relationship feature, etc
+ */
+
 trait DynaModelTrait
 {
 	/**
+	 * Detail Field information from active Table
+	 *
 	 * @var mixed[] $fieldInfo Save information of table fields
 	 */
 	protected $fieldInfo = null;
+
+	/**
+	 * Protected Fields that will unset during insert/update
+	 * iF allowed Fields is greater than protected ones,
+	 * then it will be easier to set protectedFields than allowedFields
+	 *
+	 * @var mixed[] $protectedFields
+	 */
+	protected $protectedFields = [];
 
 	/**
 	 * -------------------------
@@ -123,8 +139,10 @@ trait DynaModelTrait
 	 *
 	 * @param string $table
 	 * @param mixed  $options
+	 *
+	 * @return $this
 	 */
-	protected function initialize($table, $options = null):self
+	protected function initialize(string $table, $options = null)
 	{
 		helper('inflector');
 		helper('array');
@@ -132,6 +150,11 @@ trait DynaModelTrait
 		$this->setOptions($options);
 		$this->collectFieldInfo($table);
 		$this->builder = $this->db->table($table);
+
+		if (empty($this->allowedFields))
+		{
+			$this->allowedFields = array_keys($this->fieldInfo);
+		}
 
 		return $this;
 	}
@@ -213,9 +236,61 @@ trait DynaModelTrait
 	}
 
 	/**
-	 * an alias to call parent resetSelect
+	 * Make sure to remove protected fields if exists
+	 *
+	 * @param mixed[] $data
+	 *
+	 * @return mixed[]
 	 */
-	public function resetQuery():self
+	protected function doProtectFields(array $data): array
+	{
+		if (! empty($this->protectedFields))
+		{
+			foreach ($data as $key => $val)
+			{
+				if (in_array($key, $this->protectedFields))
+				{
+					unset($data[$key]);
+				}
+			}
+		}
+		return parent::doProtectFields($data);
+	}
+
+	/**
+	 * Set the value of allowedFields
+	 *
+	 * @param mixed[] $allowedFields array of field to be allowed on saving, default is all
+	 *
+	 * @return $this
+	 */
+	public function setAllowedFields(array $allowedFields)
+	{
+		$this->allowedFields = $allowedFields;
+
+		return $this;
+	}
+
+	/**
+	 * Set the value of protectedFields
+	 *
+	 * @param mixed[] $protectedFields array of field to be allowed on saving, default is all
+	 *
+	 * @return $this
+	 */
+	public function setProtectedFields(array $protectedFields)
+	{
+		$this->protectedFields = $protectedFields;
+
+		return $this;
+	}
+
+	/**
+	 * An alias to call parent resetSelect
+	 *
+	 * @return $this
+	 */
+	public function resetQuery()
 	{
 		$this->builder->getCompiledSelect(true);
 
