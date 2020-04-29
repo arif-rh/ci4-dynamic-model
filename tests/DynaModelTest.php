@@ -146,7 +146,7 @@ final class DynaModelTest extends TestCase
 	{
 		$posts = DB::table('posts');
 
-		$allPosts = $posts->findAll();
+		$posts->findAll();
 		$this->assertSame(5, $posts->countAllResults());
 
 		$parentTable = 'authors';
@@ -263,5 +263,83 @@ final class DynaModelTest extends TestCase
 		$options = array_key_value($data, ['id' => 'name, email'], [], ' | ');
 
 		$this->assertEquals($options, [2 => "Budhe Ana | budhe@world.com"]);
+	}
+
+	public function testInsert():void
+	{
+		$authors = DB::table('authors');
+
+		$data = [
+			'name'   => 'Ira',
+			'email'  => 'ira@mail.com',
+			'active' => 0
+		];
+
+		$insertID = $authors->insert($data);
+
+		$inserted = $authors->find($insertID);
+		unset($inserted['id']);
+		unset($inserted['deleted_at']);
+
+		$this->assertSame($data, $inserted);
+	}
+
+	public function testSave():void
+	{
+		$authors = DB::table('authors');
+
+		$data = [
+			'name'   => 'Ira',
+			'email'  => 'ira@mail.com',
+			'active' => 0
+		];
+
+		$this->assertTrue($authors->save($data));
+
+		$data['id']   = 5;
+		$data['name'] = 'Ari';
+
+		$this->assertTrue($authors->save($data));
+
+		$author = $authors->find($data['id']);
+
+		$this->assertSame($data['name'], $author['name']);
+	}
+
+	public function testAllowedFields():void
+	{
+		$posts = DB::table('posts');
+		$posts->setAllowedFields(['title', 'author_id']);
+
+		$data = [
+			'title'     => 'Hello World!',
+			'content'   => 'This content should not be saved',
+			'author_id' => 1
+		];
+
+		$posts->save($data);
+
+		$post = $posts->where('title', 'Hello World!')->find();
+
+		$this->assertNull($post[0]['content']);
+	}
+
+	public function testProtectedFields():void
+	{
+		$posts = DB::table('posts');
+		$posts->setProtectedFields(['content']);
+
+		$data = [
+			'title'     => 'Hello World!',
+			'content'   => 'This content should not be saved',
+			'author_id' => 1,
+			'status'	=> 'draft'
+		];
+
+		$posts->save($data);
+
+		$post = $posts->where('title', 'Hello World!')->find();
+
+		$this->assertNull($post[0]['content']);
 	}
 }
