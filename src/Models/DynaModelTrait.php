@@ -286,6 +286,24 @@ trait DynaModelTrait
 	}
 
 	/**
+	 * Use Timestamps for table
+	 *
+	 * @param boolean $useTimestamps wether use timestamps or not
+	 * @param string  $createdField  field name for created timestamp
+	 * @param string  $updatedField  field name for updated timestamp
+	 *
+	 * @return $this
+	 */
+	public function useTimestamp(bool $useTimestamps = true, string $createdField = 'created_at', string $updatedField = 'updated_at')
+	{
+		$this->useTimestamps = $useTimestamps;
+		$this->createdField  = $createdField;
+		$this->updatedField  = $updatedField;
+
+		return $this;
+	}
+
+	/**
 	 * An alias to call parent resetSelect
 	 *
 	 * @return $this

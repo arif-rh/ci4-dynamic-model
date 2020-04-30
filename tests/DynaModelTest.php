@@ -45,7 +45,7 @@ final class DynaModelTest extends TestCase
 		$table = 'authors';
 
 		$authors = DB::table($table);
-		$author = $authors->last();
+		$author  = $authors->last();
 
 		$this->assertSame('Tante Ais', $author['name']);
 
@@ -66,11 +66,11 @@ final class DynaModelTest extends TestCase
 	public function testPaginate():void
 	{
 		helper('url');
-		
+
 		$authors = DB::table('authors');
 
-		$page_1  = $authors->paginate(2, $authors->getDBGroup(), 1);
-		$page_2  = $authors->paginate(2, $authors->getDBGroup(), 2);
+		$page_1 = $authors->paginate(2, $authors->getDBGroup(), 1);
+		$page_2 = $authors->paginate(2, $authors->getDBGroup(), 2);
 
 		$this->assertCount(count($page_1), $page_2);
 
@@ -98,8 +98,6 @@ final class DynaModelTest extends TestCase
 
 		$authors->onlyDeleted()->findAll();
 		$this->assertSame(1, $authors->onlyDeleted()->countAllResults());
-
-		
 	}
 
 	public function testFindAll():void
@@ -118,14 +116,14 @@ final class DynaModelTest extends TestCase
 		$authors->find();
 
 		$this->assertSame(4, $authors->countAllResults());
-	
+
 		// find one key
 		$authors->find(1, false);
 
 		$this->assertSame(1, $authors->countAllResults());
-	
+
 		// find using array
-		$authors->find([1,2], false);
+		$authors->find([1, 2], false);
 
 		$this->assertSame(2, $authors->countAllResults());
 	}
@@ -175,7 +173,7 @@ final class DynaModelTest extends TestCase
 
 		// filter based on array conditions
 		$postAuthor = $posts->with($parentTable)
-							->whereRelation($parentTable, ['email' => ['pakdhe@world.com','budhe@world.com']])
+							->whereRelation($parentTable, ['email' => ['pakdhe@world.com', 'budhe@world.com']])
 							->findAll();
 
 		$this->assertCount(3, $postAuthor);
@@ -206,7 +204,7 @@ final class DynaModelTest extends TestCase
 		$authors->hasMany('posts', 'author_id', $alias, ['status' => 'asc']);
 
 		$authorArticles = $authors->with($alias)
-								  ->find([1,3]);
+								  ->find([1, 3]);
 
 		$article_status = dot_array_search('*.article.*.status', $authorArticles);
 		$this->assertSame('draft', $article_status);
@@ -215,7 +213,7 @@ final class DynaModelTest extends TestCase
 		$authors->hasMany('posts', 'author_id', $alias, ['status' => 'desc']);
 
 		$authorArticles = $authors->with($alias)
-								   ->find([1,3]);
+								   ->find([1, 3]);
 
 		$article_status = dot_array_search('*.article.*.status', $authorArticles);
 		$this->assertSame('publish', $article_status);
@@ -244,8 +242,7 @@ final class DynaModelTest extends TestCase
 		$this->assertCount(1, $article_status);
 
 		// relation when parent is empty
-		$authors->useSoftDelete()->delete([1,2,3,4]);
-		
+		$authors->useSoftDelete()->delete([1, 2, 3, 4]);
 
 		$empty_results = $authors->with($alias)
 									->whereRelation($alias, ['status' => 'publish'])
@@ -262,7 +259,7 @@ final class DynaModelTest extends TestCase
 
 		$options = array_key_value($data, ['id' => 'name, email'], [], ' | ');
 
-		$this->assertEquals($options, [2 => "Budhe Ana | budhe@world.com"]);
+		$this->assertEquals($options, [2 => 'Budhe Ana | budhe@world.com']);
 	}
 
 	public function testInsert():void
@@ -272,7 +269,7 @@ final class DynaModelTest extends TestCase
 		$data = [
 			'name'   => 'Ira',
 			'email'  => 'ira@mail.com',
-			'active' => 0
+			'active' => 0,
 		];
 
 		$insertID = $authors->insert($data);
@@ -291,7 +288,7 @@ final class DynaModelTest extends TestCase
 		$data = [
 			'name'   => 'Ira',
 			'email'  => 'ira@mail.com',
-			'active' => 0
+			'active' => 0,
 		];
 
 		$this->assertTrue($authors->save($data));
@@ -314,7 +311,7 @@ final class DynaModelTest extends TestCase
 		$data = [
 			'title'     => 'Hello World!',
 			'content'   => 'This content should not be saved',
-			'author_id' => 1
+			'author_id' => 1,
 		];
 
 		$posts->save($data);
@@ -333,7 +330,7 @@ final class DynaModelTest extends TestCase
 			'title'     => 'Hello World!',
 			'content'   => 'This content should not be saved',
 			'author_id' => 1,
-			'status'	=> 'draft'
+			'status'    => 'draft',
 		];
 
 		$posts->save($data);
@@ -341,5 +338,25 @@ final class DynaModelTest extends TestCase
 		$post = $posts->where('title', 'Hello World!')->find();
 
 		$this->assertNull($post[0]['content']);
+	}
+
+	public function testTimestamps():void
+	{
+		$posts = DB::table('posts');
+		$posts->useTimestamp();
+
+		$data = [
+			'title'     => 'Hello World!',
+			'content'   => 'This content should not be saved',
+			'author_id' => 1,
+			'status'    => 'draft',
+		];
+
+		$posts->save($data);
+
+		$post = $posts->where('title', 'Hello World!')->find();
+
+		$this->assertNotNull($post[0]['created_at']);
+		$this->assertNotNull($post[0]['updated_at']);
 	}
 }

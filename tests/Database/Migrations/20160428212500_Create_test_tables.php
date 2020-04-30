@@ -22,7 +22,7 @@ class Migration_Create_test_tables extends \CodeIgniter\Database\Migration
 				'type'       => 'VARCHAR',
 				'constraint' => 100,
 			],
-			'active'    => [
+			'active'     => [
 				'type'       => 'TINYINT',
 				'constraint' => 1,
 			],
@@ -36,29 +36,40 @@ class Migration_Create_test_tables extends \CodeIgniter\Database\Migration
 
 		// Post Table
 		$this->forge->addField([
-			'id'          => [
+			'id'         => [
 				'type'          => 'INTEGER',
 				'constraint'    => 3,
 				$unique_or_auto => true,
 			],
-			'title'        => [
+			'title'      => [
 				'type'       => 'VARCHAR',
 				'constraint' => 100,
 			],
-			'content' => [
+			'content'    => [
 				'type' => 'TEXT',
 				'null' => true,
 			],
-			'author_id'   => [
-				'type'          => 'INTEGER',
-				'constraint'    => 3
+			'author_id'  => [
+				'type'       => 'INTEGER',
+				'constraint' => 3,
 			],
-			'status'  => [
+			'status'     => [
 				'type'       => 'ENUM',
-				'constraint' => ['publish', 'draft'],
+				'constraint' => [
+					'publish',
+					'draft',
+				],
 				'default'    => 'draft',
 			],
-			'deleted_at'  => [
+			'created_at' => [
+				'type' => 'DATETIME',
+				'null' => true,
+			],
+			'updated_at' => [
+				'type' => 'DATETIME',
+				'null' => true,
+			],
+			'deleted_at' => [
 				'type'       => 'INTEGER',
 				'constraint' => 11,
 				'null'       => true,
@@ -78,17 +89,20 @@ class Migration_Create_test_tables extends \CodeIgniter\Database\Migration
 				'type'       => 'VARCHAR',
 				'constraint' => 40,
 			],
-			'content' => [
+			'content'    => [
 				'type' => 'TEXT',
 				'null' => true,
 			],
-			'post_id'   => [
-				'type'          => 'INTEGER',
-				'constraint'    => 3
+			'post_id'    => [
+				'type'       => 'INTEGER',
+				'constraint' => 3,
 			],
-			'status'  => [
+			'status'     => [
 				'type'       => 'ENUM',
-				'constraint' => ['approved', 'pending'],
+				'constraint' => [
+					'approved',
+					'pending',
+				],
 				'default'    => 'pending',
 			],
 			'deleted_at' => [
