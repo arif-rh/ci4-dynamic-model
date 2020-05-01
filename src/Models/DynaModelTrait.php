@@ -244,6 +244,8 @@ trait DynaModelTrait
 	 */
 	protected function doProtectFields(array $data): array
 	{
+		$data = $this->validateFields($data);
+
 		if (! empty($this->protectedFields))
 		{
 			foreach ($data as $key => $val)
@@ -254,7 +256,28 @@ trait DynaModelTrait
 				}
 			}
 		}
+
 		return parent::doProtectFields($data);
+	}
+
+	/**
+	 * Make sure to remove invalid fields
+	 *
+	 * @param mixed[] $data
+	 *
+	 * @return mixed[]
+	 */
+	protected function validateFields(array $data): array
+	{
+		foreach ($data as $key => $val)
+		{
+			if (! array_key_exists($key, $this->fieldInfo))
+			{
+				unset($data[$key]);
+			}
+		}
+
+		return $data;
 	}
 
 	/**
