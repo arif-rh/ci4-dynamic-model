@@ -236,6 +236,138 @@ trait DynaModelTrait
 	}
 
 	/**
+	 * Find by criteria
+	 *
+	 * @param mixed[] $where
+	 * @param string  $return row -> single row | all -> all rows
+	 * @param boolean $reset
+	 *
+	 * @return null|mixed[]
+	 */
+	public function findBy(array $where = [], string $return = 'all', bool $reset = true)
+	{
+		$builder = $this->builder();
+
+		if ($this->tempUseSoftDeletes === true)
+		{
+			$builder->where($this->table . '.' . $this->deletedField, null);
+		}
+
+		$this->trigger('beforeFind', $this->relationships);
+
+		if (is_array($where) && count($where) > 0)
+		{
+			foreach ($where as $column => $condition)
+			{
+				if (is_array($condition))
+				{
+					$builder->whereIn($this->table . '.' . $column, $condition);
+				}
+				else
+				{
+					$builder->where($this->table . '.' . $column, $condition);
+				}
+			}
+		}
+
+		if ($return === 'row')
+		{
+			$row = $builder->get(1, 0, $reset);
+			$row = $row->getFirstRow($this->tempReturnType);
+		}
+		else
+		{
+			$row = $builder->get(null, 0, $reset);
+			$row = $row->getResult($this->tempReturnType);
+		}
+
+		$eventData = $this->trigger('afterFind', ['id' => $where, 'data' => $row]);
+
+		$this->tempReturnType     = $this->returnType;
+		$this->tempUseSoftDeletes = $this->useSoftDeletes;
+
+		return $eventData['data'];
+	}
+
+	/**
+	 * Find One row by criteria
+	 *
+	 * @param mixed[] $where
+	 * @param string  $return row -> single row | all -> all rows
+	 * @param boolean $reset
+	 *
+	 * @return null|mixed[]
+	 */
+	public function findOneBy(array $where = [], bool $reset = true)
+	{
+		return $this->findBy($where, 'row', $reset);
+	}
+
+	/**
+	 * An alias for builder update where
+	 *
+	 * @param array   $set   An associative array of update values
+	 * @param mixed   $where
+	 * @param integer $limit
+	 *
+	 * @return boolean    TRUE on success, FALSE on failure
+	 */
+	public function updateBy(array $set = null, $where = null, int $limit = null): bool
+	{
+		return $this->builder->update($set, $where, $limit);
+	}
+
+	/**
+	 * Deletes by conditions
+	 *
+	 * @param mixed[] $where The rows primary key(s)
+	 * @param boolean $purge Allows overriding the soft deletes setting.
+	 *
+	 * @return mixed
+	 */
+	public function deleteBy(array $where = [], bool $purge = false)
+	{
+		$builder = $this->builder();
+
+		if (count($where) > 0)
+		{
+			foreach ($where as $column => $condition)
+			{
+				if (is_array($condition))
+				{
+					$builder = $builder->whereIn($column, $condition);
+				}
+				else
+				{
+					$builder = $builder->where($column, $condition);
+				}
+			}
+		}
+
+		$this->trigger('beforeDelete', ['id' => $where, 'purge' => $purge]);
+
+		if ($this->useSoftDeletes && ! $purge)
+		{
+			$set[$this->deletedField] = $this->setDate();
+
+			if ($this->useTimestamps && ! empty($this->updatedField))
+			{
+				$set[$this->updatedField] = $this->setDate();
+			}
+
+			$result = $builder->update($set);
+		}
+		else
+		{
+			$result = $builder->delete();
+		}
+
+		$this->trigger('afterDelete', ['id' => $where, 'purge' => $purge, 'result' => $result, 'data' => null]);
+
+		return $result;
+	}
+
+	/**
 	 * Make sure to remove protected fields if exists
 	 *
 	 * @param mixed[] $data
