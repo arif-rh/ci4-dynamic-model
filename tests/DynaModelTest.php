@@ -359,4 +359,73 @@ final class DynaModelTest extends TestCase
 		$this->assertNotNull($post[0]['created_at']);
 		$this->assertNotNull($post[0]['updated_at']);
 	}
+
+	public function testFindBy()
+	{
+		$posts = DB::table('posts');
+		$publishPosts = $posts->findBy(['status' => 'publish']);
+
+		$this->assertCount(4, $publishPosts);
+
+		$posts = DB::table('posts');
+		$publishPosts = $posts->findBy([
+			'status' => 'publish',
+			'id'     => [1,2]
+		]);
+
+		$this->assertCount(2, $publishPosts);
+	}
+
+	public function testUpdatAndFindOneBy()
+	{
+		$posts = DB::table('posts');
+		$posts->updateBy(
+			['status' => 'draft'],
+			['title' => 'CI4 Dynamic Model is Awesome']
+		);
+
+		$publishPost = $posts->findOneBy(['title' => 'CI4 Dynamic Model is Awesome']);
+
+		$this->assertSame('draft', $publishPost['status']);
+	}
+
+	public function testDeleteBy()
+	{
+		$posts = DB::table('posts');
+		$posts->deleteBy([
+			'status' => 'publish',
+			'id'     => [3,4]
+		]);
+
+		$publishPosts = $posts->findBy([
+			'status' => 'publish',
+			'id'     => [3,4]
+		]);
+
+		$this->assertEmpty($publishPosts);
+	}
+
+	public function testSoftDeleteBy()
+	{
+		$posts = DB::table('posts');
+		$posts->useSoftDelete();
+		$posts->deleteBy([
+			'status' => 'publish',
+			'id'     => [2]
+		]);
+
+		$publishPosts = $posts->findBy([
+			'status' => 'publish',
+			'id'     => [2]
+		]);
+
+		$this->assertEmpty($publishPosts);
+
+		$publishPosts = $posts->withDeleted()->findBy([
+			'status' => 'publish',
+			'id'     => [2]
+		]);
+
+		$this->assertCount(1, $publishPosts);
+	}
 }
