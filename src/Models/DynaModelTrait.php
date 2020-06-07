@@ -890,7 +890,7 @@ trait DynaModelTrait
 
 				if (! empty($parentData))
 				{
-					if ($this->isSingleResult($data))
+					if ($this->isSingleResult($parentData))
 					{
 						$parentData = [$parentData];
 					}
@@ -935,7 +935,7 @@ trait DynaModelTrait
 		{
 			$relationData = array_group_by($childData, $relationId);
 
-			$singleRow = $this->isSingleResult($resultData);
+			$singleRow = $this->isSingleResult($parentData);
 
 			if (! $singleRow)
 			{
