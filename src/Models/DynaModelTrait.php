@@ -1000,6 +1000,8 @@ trait DynaModelTrait
 	 */
 	protected function isSingleResult($resultData = null):bool
 	{
+		$resultData = (array) $resultData;
+
 		return isset($resultData['id']) && (is_numeric($resultData['id']) || is_string($resultData['id']));
 	}
 	/**
