@@ -2,17 +2,36 @@
 
 class Migration_Create_test_tables extends \CodeIgniter\Database\Migration
 {
+	/**
+	 * Unique/AutoIncrement field
+	 *
+	 * @var string $uniqueAutoIncrement
+	 */
+	var $uniqueAutoIncrement = '';
+
 	public function up()
 	{
 		// SQLite3 uses auto increment different
-		$unique_or_auto = $this->db->DBDriver === 'SQLite3' ? 'unique' : 'auto_increment';
+		$this->uniqueAutoIncrement = $this->db->DBDriver === 'SQLite3' ? 'unique' : 'auto_increment';
 
+		$this->createAuthorTable();
+		$this->createPostTable();
+		$this->createCommentTable();
+	}
+
+	/**
+	 * Create Author Table
+	 *
+	 * @return void
+	 */
+	protected function createAuthorTable()
+	{
 		// Author Table
 		$this->forge->addField([
 			'id'         => [
-				'type'          => 'INTEGER',
-				'constraint'    => 3,
-				$unique_or_auto => true,
+				'type'                     => 'INTEGER',
+				'constraint'               => 3,
+				$this->uniqueAutoIncrement => true,
 			],
 			'name'       => [
 				'type'       => 'VARCHAR',
@@ -31,15 +50,24 @@ class Migration_Create_test_tables extends \CodeIgniter\Database\Migration
 				'null' => true,
 			],
 		]);
+
 		$this->forge->addKey('id', true);
 		$this->forge->createTable('authors', true);
+	}
 
+	/**
+	 * Create Post Table
+	 *
+	 * @return void
+	 */
+	protected function createPostTable()
+	{
 		// Post Table
 		$this->forge->addField([
 			'id'         => [
-				'type'          => 'INTEGER',
-				'constraint'    => 3,
-				$unique_or_auto => true,
+				'type'                     => 'INTEGER',
+				'constraint'               => 3,
+				$this->uniqueAutoIncrement => true,
 			],
 			'title'      => [
 				'type'       => 'VARCHAR',
@@ -77,13 +105,21 @@ class Migration_Create_test_tables extends \CodeIgniter\Database\Migration
 		]);
 		$this->forge->addKey('id', true);
 		$this->forge->createTable('posts', true);
+	}
 
+	/**
+	 * Create Comment Table
+	 *
+	 * @return void
+	 */
+	protected function createCommentTable()
+	{
 		// Comment Table
 		$this->forge->addField([
 			'id'         => [
-				'type'          => 'INTEGER',
-				'constraint'    => 3,
-				$unique_or_auto => true,
+				'type'                     => 'INTEGER',
+				'constraint'               => 3,
+				$this->uniqueAutoIncrement => true,
 			],
 			'name'       => [
 				'type'       => 'VARCHAR',
@@ -110,19 +146,19 @@ class Migration_Create_test_tables extends \CodeIgniter\Database\Migration
 				'null' => true,
 			],
 		]);
+
 		$this->forge->addKey('id', true);
 		$this->forge->createTable('comments', true);
 	}
 
-	//--------------------------------------------------------------------
-
+	/**
+	 * Migration Rollback
+	 */
 	public function down()
 	{
 		$this->forge->dropTable('authors', true);
 		$this->forge->dropTable('posts', true);
 		$this->forge->dropTable('comments', true);
 	}
-
-	//--------------------------------------------------------------------
 
 }
