@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * Main Trait for DynaModel Package
+ *
+ * @package Arifrh\DynaModel
+ * @author  Arif RH <arifrahmanhakim.net@gmail.com>
+ * @license MIT
+ */
+
 namespace Arifrh\DynaModel\Models;
 
 /**
@@ -209,6 +217,11 @@ trait DynaModelTrait
 	}
 
 	/**
+	 * Find All rows
+	 *
+	 * @param int $limit
+	 * @param int $offset
+	 *
 	 * @return null|mixed[]
 	 */
 	public function findAll(int $limit = 0, int $offset = 0)
