@@ -219,8 +219,8 @@ trait DynaModelTrait
 	/**
 	 * Find All rows
 	 *
-	 * @param int $limit
-	 * @param int $offset
+	 * @param integer $limit
+	 * @param integer $offset
 	 *
 	 * @return null|mixed[]
 	 */
