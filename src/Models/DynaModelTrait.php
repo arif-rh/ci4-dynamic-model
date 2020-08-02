@@ -327,7 +327,7 @@ trait DynaModelTrait
 	 */
 	public function updateBy(array $set = null, $where = null, int $limit = null): bool
 	{
-		return $this->builder->update($set, $where, $limit);
+		return $this->builder->update($this->doProtectFields($set), $where, $limit);
 	}
 
 	/**
