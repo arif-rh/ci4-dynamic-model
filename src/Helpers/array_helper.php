@@ -76,7 +76,7 @@ if (! function_exists('array_group_by'))
 			foreach ($grouped as $key => $value)
 			{
 				$params        = array_merge([ $value ], array_slice($args, 2, func_num_args()));
-				$grouped[$key] = call_user_func_array('array_group_by', ...$params);
+				$grouped[$key] = call_user_func('array_group_by', ...$params);
 			}
 		}
 		// @codeCoverageIgnoreEnd
