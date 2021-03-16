@@ -3,6 +3,7 @@
 
 vendor/
 build/
+docs/
 
 phpstan.neon
 phpunit.xml
