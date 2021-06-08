@@ -362,15 +362,18 @@ final class DynaModelTest extends TestCase
 
 	public function testFindBy()
 	{
-		$posts = DB::table('posts');
+		$posts        = DB::table('posts');
 		$publishPosts = $posts->findBy(['status' => 'publish']);
 
 		$this->assertCount(4, $publishPosts);
 
-		$posts = DB::table('posts');
+		$posts        = DB::table('posts');
 		$publishPosts = $posts->findBy([
 			'status' => 'publish',
-			'id'     => [1,2]
+			'id'     => [
+				1,
+				2,
+			],
 		]);
 
 		$this->assertCount(2, $publishPosts);
@@ -394,12 +397,18 @@ final class DynaModelTest extends TestCase
 		$posts = DB::table('posts');
 		$posts->deleteBy([
 			'status' => 'publish',
-			'id'     => [3,4]
+			'id'     => [
+				3,
+				4,
+			],
 		]);
 
 		$publishPosts = $posts->findBy([
 			'status' => 'publish',
-			'id'     => [3,4]
+			'id'     => [
+				3,
+				4,
+			],
 		]);
 
 		$this->assertEmpty($publishPosts);
@@ -411,19 +420,19 @@ final class DynaModelTest extends TestCase
 		$posts->useSoftDelete();
 		$posts->deleteBy([
 			'status' => 'publish',
-			'id'     => [2]
+			'id'     => [2],
 		]);
 
 		$publishPosts = $posts->findBy([
 			'status' => 'publish',
-			'id'     => [2]
+			'id'     => [2],
 		]);
 
 		$this->assertEmpty($publishPosts);
 
 		$publishPosts = $posts->withDeleted()->findBy([
 			'status' => 'publish',
-			'id'     => [2]
+			'id'     => [2],
 		]);
 
 		$this->assertCount(1, $publishPosts);
