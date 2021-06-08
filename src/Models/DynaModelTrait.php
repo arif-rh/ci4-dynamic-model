@@ -137,7 +137,7 @@ trait DynaModelTrait
 
 		$this->setPrimaryKey($primaryKey);
 
-		$this->initialize($table, $options);
+		$this->_initialize($table, $options);
 
 		return $this;
 	}
@@ -150,7 +150,7 @@ trait DynaModelTrait
 	 *
 	 * @return $this
 	 */
-	protected function initialize(string $table, $options = null)
+	protected function _initialize(string $table, $options = null)
 	{
 		helper('inflector');
 		helper('array');
