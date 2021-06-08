@@ -35,7 +35,7 @@ class DynaModel extends Model
 
 		if (! empty($this->table))
 		{
-			$this->initialize($this->table);
+			$this->_initialize($this->table);
 		}
 	}
 }
