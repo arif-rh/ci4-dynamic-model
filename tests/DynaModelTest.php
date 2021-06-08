@@ -204,18 +204,18 @@ final class DynaModelTest extends TestCase
 		$authors->hasMany('posts', 'author_id', $alias, ['status' => 'asc']);
 
 		$authorArticles = $authors->with($alias)
-								  ->find([1, 3]);
+								  ->find([1]);
 
-		$article_status = dot_array_search('*.article.*.status', $authorArticles);
+		$article_status = dot_array_search('*.article.0.status', $authorArticles);
 		$this->assertSame('draft', $article_status);
 
 		// set relation with alias and ordering
 		$authors->hasMany('posts', 'author_id', $alias, ['status' => 'desc']);
 
 		$authorArticles = $authors->with($alias)
-								   ->find([1, 3]);
+								   ->find([1]);
 
-		$article_status = dot_array_search('*.article.*.status', $authorArticles);
+		$article_status = dot_array_search('*.article.0.status', $authorArticles);
 		$this->assertSame('publish', $article_status);
 
 		// filtered based on publish status
